@@ -1,0 +1,84 @@
+﻿# Preview data belongs to the player, never to a live trade route. Expiry also
+# cleans up interrupted sessions. Each search resets its own cursors.
+ckto_remember_good = {
+	scope = character
+	saved_scopes = { good }
+	effect = { set_variable = { name = ckto_good value = scope:good days = 30 } }
+}
+ckto_start_crew = {
+	scope = character
+	saved_scopes = { profit }
+	effect = {
+		set_variable = { name = ckto_best_profit value = scope:profit days = 30 }
+		# -1: the current trader's task is unknown until it is recognised by name.
+		set_variable = { name = ckto_winner_task value = -1 days = 30 }
+		remove_variable = ckto_winner
+		remove_variable = ckto_incumbent
+		ckto_reset_ratings_effect = yes
+	}
+}
+ckto_seed_incumbent = {
+	scope = character
+	saved_scopes = { person }
+	effect = {
+		set_variable = { name = ckto_winner value = scope:person days = 30 }
+		set_variable = { name = ckto_incumbent value = scope:person days = 30 }
+	}
+}
+ckto_record_trial = {
+	scope = character
+	saved_scopes = { person profit index }
+	effect = {
+		# Someone else is in the slot, so the current trader has left it and the picker cannot
+		# bring them back: this first challenger becomes the baseline.
+		if = {
+			limit = { has_variable = ckto_incumbent NOT = { scope:person = var:ckto_incumbent } }
+			remove_variable = ckto_incumbent
+			set_variable = { name = ckto_best_profit value = scope:profit days = 30 }
+			set_variable = { name = ckto_winner value = scope:person days = 30 }
+			set_variable = { name = ckto_winner_task value = scope:index days = 30 }
+		}
+		else_if = {
+			limit = {
+				OR = {
+					scope:profit > var:ckto_best_profit
+					AND = { NOT = { has_variable = ckto_winner } scope:profit = var:ckto_best_profit }
+					AND = {
+						scope:profit = var:ckto_best_profit
+						has_variable = ckto_incumbent
+						scope:person = var:ckto_incumbent
+						NOT = { scope:person = var:ckto_winner }
+					}
+				}
+			}
+			set_variable = { name = ckto_best_profit value = scope:profit days = 30 }
+			set_variable = { name = ckto_winner value = scope:person days = 30 }
+			set_variable = { name = ckto_winner_task value = scope:index days = 30 }
+		}
+	}
+}
+ckto_seed_task = {
+	scope = character
+	saved_scopes = { index }
+	effect = { set_variable = { name = ckto_winner_task value = scope:index days = 30 } }
+}
+ckto_income_before = {
+	scope = character
+	saved_scopes = { profit }
+	effect = { set_variable = { name = ckto_before value = scope:profit days = 30 } }
+}
+ckto_clear_preview = {
+	scope = character
+	is_valid = {
+		OR = { has_variable = ckto_best_profit has_variable = ckto_good has_variable = ckto_before }
+	}
+	effect = {
+		if = { limit = { has_variable = ckto_good } remove_variable = ckto_good }
+		if = { limit = { has_variable = ckto_before } remove_variable = ckto_before }
+		if = { limit = { has_variable = ckto_best_profit } remove_variable = ckto_best_profit }
+		if = { limit = { has_variable = ckto_winner_task } remove_variable = ckto_winner_task }
+		if = { limit = { has_variable = ckto_winner } remove_variable = ckto_winner }
+		if = { limit = { has_variable = ckto_incumbent } remove_variable = ckto_incumbent }
+		ckto_clear_ratings_effect = yes
+	}
+}

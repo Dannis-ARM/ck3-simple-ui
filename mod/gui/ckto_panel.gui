@@ -1,0 +1,1971 @@
+types CKTOPlannerTypes {
+type ckto_panel = vbox {
+  name = "ckto_panel"
+  visible = "[TradeRoutePlanner.IsInProfitMode]"
+  spacing = 4
+  margin_bottom = 6
+  ignoreinvisible = yes
+  layoutpolicy_horizontal = expanding
+  vbox = {
+    enabled = "[Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match'))]"
+    spacing = 10
+    layoutpolicy_horizontal = expanding
+    ignoreinvisible = yes
+    hbox = {
+      layoutpolicy_horizontal = expanding
+      spacing = 6
+      # [SUI] START - 최고 수익 탭에 금화 아이콘 추가 + 중앙 밀착(flowcontainer)
+      button_standard = {
+      layoutpolicy_horizontal = expanding
+      size = { 0 28 }
+      down = "[Not(GetVariableSystem.Exists('ckto_locked'))]"
+      tooltip = "ckto_tab_profit_tt"
+      onclick = "[GetVariableSystem.Clear('ckto_locked')]"
+
+      flowcontainer = {
+        parentanchor = center
+        direction = horizontal
+        spacing = 4
+        alwaystransparent = yes
+
+        icon = {
+          size = { 18 18 }
+          parentanchor = vcenter
+          texture = "gfx/interface/icons/icon_gold.dds"
+          alwaystransparent = yes
+        }
+
+        text_single = {
+          parentanchor = vcenter
+          text = "ckto_tab_profit"
+          align = nobaseline
+          alwaystransparent = yes
+        }
+      }
+    }
+      # [SUI] END
+      # [SUI] START - 선택된 화물 아이콘 + 이름을 버튼 안에 중앙 밀착 표시
+      button_standard = {
+      layoutpolicy_horizontal = expanding
+      size = { 0 28 }
+      down = "[GetVariableSystem.Exists('ckto_locked')]"
+      tooltip = "ckto_tab_good_tt"
+      onclick = "[GetVariableSystem.Set('ckto_locked', 'yes')]"
+
+      flowcontainer = {
+        parentanchor = center
+        direction = horizontal
+        ignoreinvisible = yes
+        spacing = 4
+        alwaystransparent = yes
+
+        icon = {
+          visible = "[TradeRoutePlanner.HasSelectedTradeGoodType]"
+          size = { 20 20 }
+          parentanchor = vcenter
+          texture = "[TradeRoutePlanner.GetSelectedTradeGoodType.GetSmallIcon]"
+          alwaystransparent = yes
+        }
+
+        text_single = {
+          visible = "[TradeRoutePlanner.HasSelectedTradeGoodType]"
+          parentanchor = vcenter
+          text = "[TradeRoutePlanner.GetSelectedTradeGoodType.GetNameNoTooltip]"
+          align = nobaseline
+          alwaystransparent = yes
+        }
+
+        text_single = {
+          visible = "[Not(TradeRoutePlanner.HasSelectedTradeGoodType)]"
+          parentanchor = vcenter
+          text = "ckto_tab_good"
+          align = nobaseline
+          alwaystransparent = yes
+        }
+      }
+    }
+      # [SUI] END
+    }
+    text_single = { visible = "[And(GetVariableSystem.Exists('ckto_locked'), Not(TradeRoutePlanner.HasSelectedTradeGoodType))]" text = "ckto_pick_hint" using = Font_Size_Small }
+    # [SUI] START - 불필요한 좌측 여백 제거 + 체크박스/3열 버튼이 튀어나오지 않고 비활성화 상태로 고정되도록 변경
+    vbox = {
+      layoutpolicy_horizontal = expanding
+      spacing = 10
+      ignoreinvisible = yes
+
+      hbox = {
+        layoutpolicy_horizontal = expanding
+        spacing = 12
+
+        expand = {}
+
+        button_checkbox_label = {
+          enabled = "[GetVariableSystem.Exists('ckto_locked')]"
+          alpha = "[Select_float( GetVariableSystem.Exists('ckto_locked'), '(float)1.0', '(float)0.45' )]"
+          onclick = "[GetVariableSystem.Toggle('ckto_side')]"
+          tooltip = "ckto_side_tt"
+          blockoverride "checkbox" { checked = "[GetVariableSystem.Exists('ckto_side')]" size = { 20 20 } }
+          blockoverride "text" { text = "ckto_side" using = Font_Size_Small }
+        }
+
+        button_checkbox_label = {
+          visible = "[GetPlayer.HasCompanyTitle]"
+          onclick = "[GetVariableSystem.Toggle('ckto_crew')]"
+          tooltip = "ckto_crew_tt"
+          blockoverride "checkbox" { checked = "[GetVariableSystem.Exists('ckto_crew')]" size = { 20 20 } }
+          blockoverride "text" { text = "ckto_crew" using = Font_Size_Small }
+        }
+
+        expand = {}
+      }
+
+      vbox = {
+        visible = "[GetPlayer.HasCompanyTitle]"
+        enabled = "[GetVariableSystem.Exists('ckto_crew')]"
+        alpha = "[Select_float( GetVariableSystem.Exists('ckto_crew'), '(float)1.0', '(float)0.45' )]"
+        layoutpolicy_horizontal = expanding
+        spacing = 2
+    # [SUI] END
+        # [SUI] START - 무역상 임무 옵션을 아이콘 포함 1행 3열(최고 수익 / 전문성 우선 / 효율 우선)로 정리
+        hbox = {
+          layoutpolicy_horizontal = expanding
+          spacing = 6
+
+          button_standard = {
+            layoutpolicy_horizontal = expanding
+            size = { 0 26 }
+            down = "[Not(Or(Or(GetVariableSystem.HasValue('ckto_task', 'manage_competition'), GetVariableSystem.HasValue('ckto_task', 'negotiate_deals')), GetVariableSystem.HasValue('ckto_task', 'oversee_caravans')))]"
+            tooltip = "ckto_task_profit_tt"
+            onclick = "[GetVariableSystem.Clear('ckto_task')]"
+
+            flowcontainer = {
+              parentanchor = center
+              direction = horizontal
+              spacing = 3
+              alwaystransparent = yes
+
+              icon = {
+                size = { 16 16 }
+                parentanchor = vcenter
+                texture = "gfx/interface/icons/icon_gold.dds"
+                alwaystransparent = yes
+              }
+
+              text_single = {
+                parentanchor = vcenter
+                text = "ckto_task_profit"
+                fontsize = 14
+                align = nobaseline
+                alwaystransparent = yes
+              }
+            }
+          }
+
+          button_standard = {
+            layoutpolicy_horizontal = expanding
+            size = { 0 26 }
+            down = "[GetVariableSystem.HasValue('ckto_task', 'negotiate_deals')]"
+            tooltip = "SUI_CKTO_TASK_NEGO_TT"
+            onclick = "[GetVariableSystem.Set('ckto_task', 'negotiate_deals')]"
+
+            flowcontainer = {
+              parentanchor = center
+              direction = horizontal
+              spacing = 3
+              alwaystransparent = yes
+
+              icon = {
+                size = { 16 16 }
+                parentanchor = vcenter
+                texture = "gfx/interface/icons/trade/acumen.dds"
+                alwaystransparent = yes
+              }
+
+              text_single = {
+                parentanchor = vcenter
+                text = "SUI_CKTO_TASK_NEGO"
+                fontsize = 14
+                align = nobaseline
+                alwaystransparent = yes
+              }
+            }
+          }
+
+          button_standard = {
+            layoutpolicy_horizontal = expanding
+            size = { 0 26 }
+            down = "[GetVariableSystem.HasValue('ckto_task', 'oversee_caravans')]"
+            tooltip = "SUI_CKTO_TASK_CARAVAN_TT"
+            onclick = "[GetVariableSystem.Set('ckto_task', 'oversee_caravans')]"
+
+            flowcontainer = {
+              parentanchor = center
+              direction = horizontal
+              spacing = 3
+              alwaystransparent = yes
+
+              icon = {
+                size = { 16 16 }
+                parentanchor = vcenter
+                texture = "gfx/interface/icons/trade/icon_trade_capacity.dds"
+                alwaystransparent = yes
+              }
+
+              text_single = {
+                parentanchor = vcenter
+                text = "SUI_CKTO_TASK_CARAVAN"
+                fontsize = 14
+                align = nobaseline
+                alwaystransparent = yes
+              }
+            }
+          }
+        }
+        # [SUI] END
+      }
+    }
+    spacer = { size = { 0 8 } }
+    button_primary = {
+      layoutpolicy_horizontal = expanding
+      enabled = "[And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType))]"
+      text = "ckto_optimize"
+      tooltip = "ckto_help"
+      onclick = "[GetVariableSystem.Set('ckto_phase', 'route')]"
+    }
+  }
+  hbox = {
+    visible = "[Not(Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match')))]"
+    layoutpolicy_horizontal = expanding
+    spacing = 6
+    text_single = {  text = "ckto_working" using = Font_Size_Small }
+    expand = {}
+    button_tertiary = { size = { 110 26 } text = "ckto_cancel" onclick = "[TradeRoutePlanner.Close]" }
+  }
+  text_single = { visible = "[GetVariableSystem.HasValue('ckto_phase', 'no_match')]" text = "ckto_no_match" using = Font_Size_Small }
+  text_single = { visible = "[GetVariableSystem.HasValue('ckto_phase', 'done')]" text = "ckto_result" using = Font_Size_Small }
+  # Zero-size host so the hidden search steps never take layout space.
+  widget = {
+    size = { 0 0 }
+    widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'route')]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'route'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_row', '0')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'scan')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+container = { name = "ckto_apply_route" datamodel = "[TradeRoutePlanner.GetBestTrades]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), And(And(Or(And(GetVariableSystem.Exists('ckto_locked'), ObjectsEqual(RecommendedGood.GetTradeGoodType, TradeRoutePlanner.GetSelectedTradeGoodType)), And(Not(GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0'))), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0')), Or(GetVariableSystem.Exists('ckto_locked'), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, TradeRouteDraft.GetTotalExpectedProfit))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), And(And(Or(And(GetVariableSystem.Exists('ckto_locked'), ObjectsEqual(RecommendedGood.GetTradeGoodType, TradeRoutePlanner.GetSelectedTradeGoodType)), And(Not(GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0'))), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0')), Or(GetVariableSystem.Exists('ckto_locked'), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, TradeRouteDraft.GetTotalExpectedProfit)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_remember_good').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('good', RecommendedGood.GetTradeGoodType.MakeScope).End)]"
+on_start = "[TradeRoutePlanner.AddRecommendedTradeToRoute(RecommendedGood.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'primary')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+container = { name = "ckto_skip_trade" datamodel = "[TradeRoutePlanner.GetBestTrades]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), Not(And(And(Or(And(GetVariableSystem.Exists('ckto_locked'), ObjectsEqual(RecommendedGood.GetTradeGoodType, TradeRoutePlanner.GetSelectedTradeGoodType)), And(Not(GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0'))), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0')), Or(GetVariableSystem.Exists('ckto_locked'), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, TradeRouteDraft.GetTotalExpectedProfit)))))]"
+    state = {
+      name = _show
+      duration = 0.03
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), Not(And(And(Or(And(GetVariableSystem.Exists('ckto_locked'), ObjectsEqual(RecommendedGood.GetTradeGoodType, TradeRoutePlanner.GetSelectedTradeGoodType)), And(Not(GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0'))), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0')), Or(GetVariableSystem.Exists('ckto_locked'), GreaterThan_CFixedPoint(RecommendedGood.GetProfit, TradeRouteDraft.GetTotalExpectedProfit))))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_row', IntToString(Add_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)1')))]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetBestTrades)))), Not(GetVariableSystem.Exists('ckto_locked')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetBestTrades)))), Not(GetVariableSystem.Exists('ckto_locked'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'fill_start')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetBestTrades)))), GetVariableSystem.Exists('ckto_locked'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'scan'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetBestTrades)))), GetVariableSystem.Exists('ckto_locked')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'no_match')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'primary'), GetVariableSystem.Exists('ckto_locked'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'primary'), GetVariableSystem.Exists('ckto_locked')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'add_primary')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'primary'), Not(GetVariableSystem.Exists('ckto_locked')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'primary'), Not(GetVariableSystem.Exists('ckto_locked'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'fill_start')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.AddOrReplaceTradeGoodType(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'check_primary')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), TradeRoutePlanner.RouteContainsTradeGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), TradeRoutePlanner.RouteContainsTradeGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.MoveTradeGoodToIndex(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType, '(int32)0')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'check_primary')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'check_primary'), TradeRoutePlanner.IsPrimaryGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)), GreaterThan_CFixedPoint(TradeRouteDraft.GetPurchasedAmountOfGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), '(CFixedPoint)0'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'check_primary'), TradeRoutePlanner.IsPrimaryGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)), GreaterThan_CFixedPoint(TradeRouteDraft.GetPurchasedAmountOfGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), '(CFixedPoint)0')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'trim')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'trim'), LessThanOrEqualTo_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'trim'), LessThanOrEqualTo_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'fill_start')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+container = { name = "ckto_trim_last" datamodel = "[TradeRouteDraft.GetTradeGoods]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'trim'), Not(LessThanOrEqualTo_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1'))), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, Subtract_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'trim'), Not(LessThanOrEqualTo_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1'))), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, Subtract_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), '(int32)1'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.RemoveTradeGoodTypeFromRoute(TradeGoodType.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'check_primary')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), Not(TradeRoutePlanner.CanAddTradeGoodTypeToRoute(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType))), Not(TradeRoutePlanner.RouteContainsTradeGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'add_primary'), Not(TradeRoutePlanner.CanAddTradeGoodTypeToRoute(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType))), Not(TradeRoutePlanner.RouteContainsTradeGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'no_match')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'check_primary'), Not(And(TradeRoutePlanner.IsPrimaryGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), GreaterThan_CFixedPoint(TradeRouteDraft.GetPurchasedAmountOfGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), '(CFixedPoint)0'))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'check_primary'), Not(And(TradeRoutePlanner.IsPrimaryGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), GreaterThan_CFixedPoint(TradeRouteDraft.GetPurchasedAmountOfGood(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType), '(CFixedPoint)0')))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'no_match')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'fill_start'), Or(Not(GetVariableSystem.Exists('ckto_locked')), GetVariableSystem.Exists('ckto_side'))), LessThan_CFixedPoint(TradeRouteDraft.GetTotalPurchased, TradeRoutePlanner.GetTradeCapacityOnRoute)), LessThan_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), TradeRoutePlanner.GetMaxTradeGoodsOnRoute))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'fill_start'), Or(Not(GetVariableSystem.Exists('ckto_locked')), GetVariableSystem.Exists('ckto_side'))), LessThan_CFixedPoint(TradeRouteDraft.GetTotalPurchased, TradeRoutePlanner.GetTradeCapacityOnRoute)), LessThan_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), TradeRoutePlanner.GetMaxTradeGoodsOnRoute)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_row', '0')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'fill')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'fill_start'), Not(And(And(Or(Not(GetVariableSystem.Exists('ckto_locked')), GetVariableSystem.Exists('ckto_side')), LessThan_CFixedPoint(TradeRouteDraft.GetTotalPurchased, TradeRoutePlanner.GetTradeCapacityOnRoute)), LessThan_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), TradeRoutePlanner.GetMaxTradeGoodsOnRoute))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'fill_start'), Not(And(And(Or(Not(GetVariableSystem.Exists('ckto_locked')), GetVariableSystem.Exists('ckto_side')), LessThan_CFixedPoint(TradeRouteDraft.GetTotalPurchased, TradeRoutePlanner.GetTradeCapacityOnRoute)), LessThan_int32(GetDataModelSize(TradeRouteDraft.GetTradeGoods), TradeRoutePlanner.GetMaxTradeGoodsOnRoute)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'reselect')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+container = { name = "ckto_add_cargo" datamodel = "[TradeRoutePlanner.GetRecommendedTradeGoodTypes]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), And(And(GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0'), Not(TradeRoutePlanner.RouteContainsTradeGood(RecommendedGood.GetTradeGoodType))), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(RecommendedGood.GetTradeGoodType)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), And(And(GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0'), Not(TradeRoutePlanner.RouteContainsTradeGood(RecommendedGood.GetTradeGoodType))), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(RecommendedGood.GetTradeGoodType))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_income_before').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).End)]"
+on_start = "[GetScriptedGui('ckto_remember_good').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('good', RecommendedGood.GetTradeGoodType.MakeScope).End)]"
+on_start = "[TradeRoutePlanner.AddOrReplaceTradeGoodType(RecommendedGood.GetTradeGoodType)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'test_cargo')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+container = { name = "ckto_skip_cargo" datamodel = "[TradeRoutePlanner.GetRecommendedTradeGoodTypes]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), Not(And(And(GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0'), Not(TradeRoutePlanner.RouteContainsTradeGood(RecommendedGood.GetTradeGoodType))), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(RecommendedGood.GetTradeGoodType))))]"
+    state = {
+      name = _show
+      duration = 0.03
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(PdxGuiWidget.GetIndexInDataModel))), Not(And(And(GreaterThan_CFixedPoint(RecommendedGood.GetProfit, '(CFixedPoint)0'), Not(TradeRoutePlanner.RouteContainsTradeGood(RecommendedGood.GetTradeGoodType))), TradeRoutePlanner.CanAddTradeGoodTypeToRoute(RecommendedGood.GetTradeGoodType)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_row', IntToString(Add_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)1')))]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'test_cargo'), GreaterThan_CFixedPoint(TradeRouteDraft.GetTotalExpectedProfit, GetPlayer.MakeScope.Var('ckto_before').GetValue))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'test_cargo'), GreaterThan_CFixedPoint(TradeRouteDraft.GetTotalExpectedProfit, GetPlayer.MakeScope.Var('ckto_before').GetValue)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'fill_start')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'test_cargo'), LessThanOrEqualTo_CFixedPoint(TradeRouteDraft.GetTotalExpectedProfit, GetPlayer.MakeScope.Var('ckto_before').GetValue))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'test_cargo'), LessThanOrEqualTo_CFixedPoint(TradeRouteDraft.GetTotalExpectedProfit, GetPlayer.MakeScope.Var('ckto_before').GetValue)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.RemoveTradeGoodTypeFromRoute(GetPlayer.MakeScope.Var('ckto_good').TradeGoodType)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'reselect')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetRecommendedTradeGoodTypes))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'fill'), GetVariableSystem.HasValue('ckto_row', IntToString(GetDataModelSize(TradeRoutePlanner.GetRecommendedTradeGoodTypes)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'reselect')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+container = { name = "ckto_reselect_good" datamodel = "[TradeRouteDraft.GetTradeGoods]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0')), Not(ObjectsEqual(TradeRoutePlanner.GetSelectedTradeGoodType, TradeGoodType.Self)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0')), Not(ObjectsEqual(TradeRoutePlanner.GetSelectedTradeGoodType, TradeGoodType.Self))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.SetSelectedTradeGoodTypeReplacingCarriedGood(TradeGoodType.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'crew')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+container = { name = "ckto_reselect_kept" datamodel = "[TradeRouteDraft.GetTradeGoods]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0')), ObjectsEqual(TradeRoutePlanner.GetSelectedTradeGoodType, TradeGoodType.Self))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), GetVariableSystem.Exists('ckto_locked')), EqualTo_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)0')), ObjectsEqual(TradeRoutePlanner.GetSelectedTradeGoodType, TradeGoodType.Self)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'crew')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), Or(Not(GetVariableSystem.Exists('ckto_locked')), IsDataModelEmpty(TradeRouteDraft.GetTradeGoods)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'reselect'), Or(Not(GetVariableSystem.Exists('ckto_locked')), IsDataModelEmpty(TradeRouteDraft.GetTradeGoods))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'crew')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'crew'), Not(And(GetVariableSystem.Exists('ckto_crew'), GetPlayer.HasCompanyTitle)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'crew'), Not(And(GetVariableSystem.Exists('ckto_crew'), GetPlayer.HasCompanyTitle))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'crew'), And(GetVariableSystem.Exists('ckto_crew'), GetPlayer.HasCompanyTitle))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'crew'), And(GetVariableSystem.Exists('ckto_crew'), GetPlayer.HasCompanyTitle)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_start_crew').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'seed')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'seed'), Not(TraderItem.GetCharacter.IsValid))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'seed'), Not(TraderItem.GetCharacter.IsValid)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'seed'), TraderItem.GetCharacter.IsValid)]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'seed'), TraderItem.GetCharacter.IsValid), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_seed_incumbent').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).End)]"
+on_start = "[GetScriptedGui('ckto_rate_person').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'seed_task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_incumbent_task_0" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_seed_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_incumbent_task_1" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_seed_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_incumbent_task_2" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), ObjectsEqual(TraderTaskItem.Self, TraderItem.GetSelectedTask)), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_seed_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'seed_task')]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'seed_task'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'rate_open')]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'rate_open'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'rate_list')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'rate_list'), Not(TraderCharacterList.IsOpen))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'rate_list'), Not(TraderCharacterList.IsOpen)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.ToggleTraderSelection]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'rate')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+container = { name = "ckto_rate_person" datamodel = "[CharacterSelectionList.GetList]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), And(CharacterListItem.IsSelectable, Or(Not(CharacterListItem.GetCharacter.IsTrader), ObjectsEqual(CharacterListItem.GetCharacter, TradeRoutePlanner.GetTradeRoute.GetTrader))))]"
+    state = {
+      name = _show
+      duration = 0.04
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), And(CharacterListItem.IsSelectable, Or(Not(CharacterListItem.GetCharacter.IsTrader), ObjectsEqual(CharacterListItem.GetCharacter, TradeRoutePlanner.GetTradeRoute.GetTrader)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_rate_person').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', CharacterListItem.GetCharacter.MakeScope).End)]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'manage_competition'))]"
+    state = {
+      name = _show
+      duration = 0.4
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'manage_competition')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_choose_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'negotiate_deals'))]"
+    state = {
+      name = _show
+      duration = 0.4
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'negotiate_deals')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_choose_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'oversee_caravans'))]"
+    state = {
+      name = _show
+      duration = 0.4
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), GetVariableSystem.HasValue('ckto_task', 'oversee_caravans')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_choose_task').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), Not(Or(Or(GetVariableSystem.HasValue('ckto_task', 'manage_competition'), GetVariableSystem.HasValue('ckto_task', 'negotiate_deals')), GetVariableSystem.HasValue('ckto_task', 'oversee_caravans'))))]"
+    state = {
+      name = _show
+      duration = 0.4
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'rate'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), Not(Or(Or(GetVariableSystem.HasValue('ckto_task', 'manage_competition'), GetVariableSystem.HasValue('ckto_task', 'negotiate_deals')), GetVariableSystem.HasValue('ckto_task', 'oversee_caravans')))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '0')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'inc'), Not(And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), Not(And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char)))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'plan')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_inc_task_0" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '0')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '0')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc_measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '0'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '0')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '0')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char)))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '0')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_inc').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_inc_task_1" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '1')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '1')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc_measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '1'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '1')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '1')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char)))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '1')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_inc').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_inc_task_2" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '2')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '2')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'inc_measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '2'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'inc'), GetVariableSystem.HasValue('ckto_k', '2')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'plan')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '2')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char)))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'inc_measure'), GetVariableSystem.HasValue('ckto_k', '2')), And(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid, ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_incumbent').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_inc').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'plan')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'plan')]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'plan'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_plan_trials').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '0')]"
+on_start = "[GetVariableSystem.Set('ckto_pass', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'pass_end'), GetVariableSystem.HasValue('ckto_pass', '1'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'pass_end'), GetVariableSystem.HasValue('ckto_pass', '1')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '0')]"
+on_start = "[GetVariableSystem.Set('ckto_pass', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'pass_end'), GetVariableSystem.HasValue('ckto_pass', '2'))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'pass_end'), GetVariableSystem.HasValue('ckto_pass', '2')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'restore')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'find_open'), Not(TraderCharacterList.IsOpen))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'find_open'), Not(TraderCharacterList.IsOpen)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.ToggleTraderSelection]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'find')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1')))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1'))))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '0')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_0').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_0').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'find_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+container = { name = "ckto_find_0" datamodel = "[CharacterSelectionList.GetList]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '0')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), CharacterListItem.IsSelectable)]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '0')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), CharacterListItem.IsSelectable), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[CharacterListItem.OnClick('character')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '0'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '0')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_task_0" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '0')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '0')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '0'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '0')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '0')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '0')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_0').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)0'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '1')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1')))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1'))))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '1')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_1').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_1').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'find_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+container = { name = "ckto_find_1" datamodel = "[CharacterSelectionList.GetList]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '1')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), CharacterListItem.IsSelectable)]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '1')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), CharacterListItem.IsSelectable), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[CharacterListItem.OnClick('character')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '1'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '1')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_task_1" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '1')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '1')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '1'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '1')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '1')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '1')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_1').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)1'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_k', '2')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'try')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1')))))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), Not(And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1'))))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'pass_end')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1')))), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'try'), GetVariableSystem.HasValue('ckto_k', '2')), And(EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_try_2').GetValue), '(int32)1'), Or(Not(GetPlayer.MakeScope.Var('ckto_incumbent').Char.IsValid), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_safe_2').GetValue), '(int32)1')))), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'find_open')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+container = { name = "ckto_find_2" datamodel = "[CharacterSelectionList.GetList]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '2')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), CharacterListItem.IsSelectable)]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '2')), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), CharacterListItem.IsSelectable), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[CharacterListItem.OnClick('character')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '2'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'find'), GetVariableSystem.HasValue('ckto_k', '2')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'pass_end')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_task_2" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '2')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '2')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'measure')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '2'))]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'task'), GetVariableSystem.HasValue('ckto_k', '2')), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'pass_end')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '2')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char))]"
+    state = {
+      name = _show
+      duration = 0.2
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'measure'), GetVariableSystem.HasValue('ckto_k', '2')), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_best_2').Char)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetScriptedGui('ckto_record_trial').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('person', TraderItem.GetCharacter.MakeScope).AddScope('profit', MakeScopeValue(TradeRouteDraft.GetTotalExpectedProfit)).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetScriptedGui('ckto_mark_tried').Execute(GuiScope.SetRoot(GetPlayer.MakeScope).AddScope('index', MakeScopeValue(IntToFixedPoint('(int32)2'))).End)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'pass_end')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'restore'), GetPlayer.MakeScope.Var('ckto_winner').Char.IsValid), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore'), GetPlayer.MakeScope.Var('ckto_winner').Char.IsValid), Not(ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore_list')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'restore_list'), Not(TraderCharacterList.IsOpen))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'restore_list'), Not(TraderCharacterList.IsOpen)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TradeRoutePlanner.ToggleTraderSelection]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore_pick')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+container = { name = "ckto_restore_winner" datamodel = "[CharacterSelectionList.GetList]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_pick'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), CharacterListItem.IsSelectable)]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_pick'), And(TraderCharacterList.IsOpen, Not(CharacterSelectionList.IsBuildingList))), ObjectsEqual(CharacterListItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), CharacterListItem.IsSelectable), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[CharacterListItem.OnClick('character')]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore_task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(And(GetVariableSystem.HasValue('ckto_phase', 'restore'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), TraderItem.GetCharacter.IsValid)]"
+    state = {
+      name = _show
+      duration = 0.04
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), TraderItem.GetCharacter.IsValid), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'restore_task')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[And(GetVariableSystem.HasValue('ckto_phase', 'restore'), Not(GetPlayer.MakeScope.Var('ckto_winner').Char.IsValid))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(GetVariableSystem.HasValue('ckto_phase', 'restore'), Not(GetPlayer.MakeScope.Var('ckto_winner').Char.IsValid)), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[TradeRoutePlanner.ClearTraderSelection]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    datacontext = "[TradeRoutePlanner.AccessTraderCharacterList]"
+datacontext = "[TraderCharacterList.AccessCharacterList]"
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'restore_pick')]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'restore_pick'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderCharacterList.Close]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_restore_task_0" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)0')), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)0')), EqualTo_string(TraderTaskItem.GetName, Localize('manage_competition'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_restore_task_1" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)1')), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)1')), EqualTo_string(TraderTaskItem.GetName, Localize('negotiate_deals'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = { datacontext_from_model = { datamodel = "[TradeRoutePlanner.AccessTradeRouteItems]" index = "['(int32)0']" }
+datacontext = "[TradeRouteItem.AccessTrader]"
+container = { name = "ckto_restore_task_2" datamodel = "[TraderItem.GetTasks]" item = { widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)2')), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans')))]"
+    state = {
+      name = _show
+      duration = 0.12
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(And(And(And(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), ObjectsEqual(TraderItem.GetCharacter, GetPlayer.MakeScope.Var('ckto_winner').Char)), EqualTo_int32(FixedPointToInt(GetPlayer.MakeScope.Var('ckto_winner_task').GetValue), '(int32)2')), EqualTo_string(TraderTaskItem.GetName, Localize('oversee_caravans'))), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[TraderItem.SelectTask(TraderTaskItem.Self)]"
+on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  } } } }
+widget = {
+    size = { 0 0 }
+    alwaystransparent = yes
+    visible_at_creation = no
+    
+    visible = "[GetVariableSystem.HasValue('ckto_phase', 'restore_task')]"
+    state = {
+      name = _show
+      duration = 1.5
+      on_finish = "[PdxGuiWidget.TriggerAnimation(Select_CString(GetVariableSystem.HasValue('ckto_phase', 'restore_task'), 'ckto_commit', 'ckto_skip'))]"
+    }
+    state = { name = ckto_commit on_start = "[GetVariableSystem.Set('ckto_phase', 'done')]" }
+    state = { name = ckto_skip alpha = 1 } # no-op property: an empty state logs an error when triggered
+    state = {
+      name = _hide
+      duration = 0
+    }
+  }
+  }
+}
+}

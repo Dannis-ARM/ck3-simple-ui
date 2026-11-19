@@ -1,0 +1,501 @@
+#######################################################
+###########   SIMPLE UI - MARKET POPUP   ##############
+#######################################################
+
+types SimpleUIMarketTypes
+{
+	type sui_market_window = window {
+		name = "sui_market_window"
+		widgetid = "sui_market_window"
+		datacontext = "[HoldingView.GetProvince.GetTradeMarket]"
+
+		visible = "[And( GetVariableSystem.Exists( 'sui_market_window_open' ), TradeMarket.IsValid )]"
+		position = { 630 80 }
+		size = { 540 620 }
+		movable = yes
+		allow_outside = yes
+		layer = middle
+
+		using = Window_Background
+		using = Window_Decoration_Spike
+
+		state = {
+			name = _show
+			using = Animation_FadeIn_Quick
+			using = Sound_WindowShow_Standard
+			on_finish = "[PdxGuiWidget.StackTop]"
+		}
+
+		state = {
+			name = _hide
+			using = Animation_FadeOut_Quick
+			using = Sound_WindowHide_Standard
+		}
+
+		vbox = {
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			using = Window_Margins
+
+			# Header
+			header_pattern = {
+				layoutpolicy_horizontal = expanding
+
+				blockoverride "header_text"
+				{
+					text = "SUI_MARKET_HEADER_TITLE"
+				}
+
+				blockoverride "button_close"
+				{
+					onclick = "[GetVariableSystem.Clear( 'sui_market_window_open' )]"
+				}
+			}
+
+			# Summary & Action Bar
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				margin = { 12 8 }
+				spacing = 8
+
+				background = {
+					using = Background_Area_Dark
+					alpha = 0.6
+				}
+
+				text_single = {
+					text = "SUI_MARKET_TRADE_POSTS"
+					tooltip = "SUI_MARKET_TRADE_POSTS_TT"
+					default_format = "#low"
+					align = nobaseline
+				}
+
+				text_single = {
+					raw_text = "#weak |#!"
+					align = nobaseline
+				}
+
+				text_single = {
+					text = "SUI_MARKET_PROFIT_ROUTES"
+					tooltip = "SUI_MARKET_PROFIT_ROUTES_TT"
+					default_format = "#low"
+					align = nobaseline
+				}
+
+				text_single = {
+					raw_text = "#weak |#!"
+					align = nobaseline
+				}
+
+				text_single = {
+					text = "SUI_MARKET_DIST_ROUTES"
+					tooltip = "SUI_MARKET_DIST_ROUTES_TT"
+					default_format = "#low"
+					align = nobaseline
+				}
+
+				expand = {}
+
+				button_standard = {
+					size = { 130 30 }
+					text = "SUI_OPEN_VANILLA_MARKET"
+					tooltip = "SUI_OPEN_VANILLA_MARKET_TT"
+					onclick = "[GetVariableSystem.Clear( 'sui_market_window_open' )]"
+					onclick = "[OpenGameViewData( 'trade_market_window', TradeMarket.Self )]"
+				}
+			}
+
+			# Goods Balance Scrollbox
+			scrollbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+
+				blockoverride "scrollbox_content"
+				{
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						spacing = 10
+						margin = { 4 4 }
+
+						# Left Column: Basic Goods
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							spacing = 6
+
+							text_label_left = {
+								layoutpolicy_horizontal = expanding
+								text = "SUI_MARKET_BASIC_GOODS"
+							}
+
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								ignoreinvisible = yes
+								spacing = 0
+								datamodel = "[GetBasicNeedTradeGoodCategories]"
+
+								item = {
+									sui_market_category_row = {}
+								}
+							}
+
+							expand = {}
+						}
+
+						divider_light = {
+							layoutpolicy_vertical = expanding
+						}
+
+						# Right Column: Non-Basic / Luxury Goods
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							spacing = 6
+
+							text_label_left = {
+								layoutpolicy_horizontal = expanding
+								text = "SUI_MARKET_OTHER_GOODS"
+							}
+
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								ignoreinvisible = yes
+								spacing = 0
+								datamodel = "[GetNonBasicNeedTradeGoodCategories]"
+
+								item = {
+									sui_market_category_row = {}
+								}
+							}
+
+							expand = {}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	type sui_market_category_row = vbox {
+		visible = "[TradeMarket.CategoryHasGoodsWithBalance( TradeGoodCategory.Self )]"
+		layoutpolicy_horizontal = expanding
+		ignoreinvisible = yes
+		spacing = 2
+		datamodel = "[TradeGoodCategory.GetTradeGoodTypes]"
+
+		item = {
+			sui_market_good_chip = {}
+		}
+	}
+
+	type sui_market_good_chip = widget {
+		visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThan_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0' ) )]"
+		layoutpolicy_horizontal = expanding
+		size = { 0 28 }
+
+		tooltipwidget = {
+			sui_market_good_tooltip = {}
+		}
+
+		# 기본 레이어 (내 봉역과 무관한 품목은 흐리게 표시)
+		hbox = {
+			size = { 100% 100% }
+			margin = { 6 2 }
+			spacing = 6
+			alpha = 0.45
+
+			background = {
+				using = Background_Area_Dark
+				alpha = 0.55
+			}
+
+			icon = {
+				size = { 20 20 }
+				texture = "[TradeGoodType.GetIcon]"
+			}
+
+			text_single = {
+				text = "[TradeGoodType.GetNameNoTooltip]"
+				align = nobaseline
+			}
+
+			expand = {}
+
+			text_single = {
+				visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
+				raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+				align = nobaseline
+			}
+
+			text_single = {
+				visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
+				raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+				align = nobaseline
+			}
+		}
+
+		# 내 봉역에서 부족한 품목일 때만 선명하게 강조 오버레이
+		widget = {
+			size = { 100% 100% }
+			datamodel = "[TradeMarket.GetRealmNeeds]"
+
+			item = {
+				hbox = {
+					visible = "[And( Not( TradeMarketRealmNeed.IsCategory ), ObjectsEqual( TradeMarketRealmNeed.GetTradeGoodType, TradeGoodType.Self ) )]"
+					size = { 100% 100% }
+					margin = { 6 2 }
+					spacing = 6
+
+					background = {
+						using = Background_Area_Dark
+						alpha = 0.95
+					}
+
+					background = {
+						using = Background_Frame
+						color = { 0.85 0.35 0.3 0.7 }
+					}
+
+					icon = {
+						size = { 20 20 }
+						texture = "[TradeGoodType.GetIcon]"
+					}
+
+					text_single = {
+						text = "[TradeGoodType.GetNameNoTooltip]"
+						default_format = "#high"
+						align = nobaseline
+					}
+
+					expand = {}
+
+					text_single = {
+						raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+						align = nobaseline
+					}
+				}
+			}
+		}
+
+		# 현재 영지에서 생산 중이면서 시장에 잉여인 품목일 때 녹색 강조 오버레이
+		widget = {
+			size = { 100% 100% }
+			datamodel = "[HoldingView.GetProductionItems]"
+
+			item = {
+				hbox = {
+					visible = "[And( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), ObjectsEqual( GUIProductionItem.GetTradeGoodType, TradeGoodType.Self ) )]"
+					size = { 100% 100% }
+					margin = { 6 2 }
+					spacing = 6
+
+					background = {
+						using = Background_Area_Dark
+						alpha = 0.95
+					}
+
+					background = {
+						using = Background_Frame
+						color = { 0.3 0.8 0.4 0.7 }
+					}
+
+					icon = {
+						size = { 20 20 }
+						texture = "[TradeGoodType.GetIcon]"
+					}
+
+					text_single = {
+						text = "[TradeGoodType.GetNameNoTooltip]"
+						default_format = "#high"
+						align = nobaseline
+					}
+
+					expand = {}
+
+					text_single = {
+						raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+						align = nobaseline
+					}
+				}
+			}
+		}
+	}
+
+	type sui_market_good_tooltip = widget {
+		alwaystransparent = no
+		using = DefaultTooltipBackground
+
+		vbox = {
+			set_parent_size_to_minimum = yes
+			min_width = 240
+			margin = { 14 10 }
+			spacing = 6
+
+			# Header: Good Icon + Name
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 6
+
+				icon = {
+					size = { 24 24 }
+					texture = "[TradeGoodType.GetIcon]"
+				}
+
+				text_single = {
+					text = "[TradeGoodType.GetNameNoTooltip]"
+					default_format = "#T"
+					align = nobaseline
+				}
+
+				expand = {}
+			}
+
+			# Market Total Surplus / Deficit
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 12
+
+				text_single = {
+					visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
+					text = "SUI_MARKET_TT_SURPLUS"
+					default_format = "#low"
+					align = nobaseline
+				}
+
+				text_single = {
+					visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
+					text = "SUI_MARKET_TT_DEFICIT"
+					default_format = "#low"
+					align = nobaseline
+				}
+
+				expand = {}
+
+				text_single = {
+					visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
+					raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+					align = nobaseline
+				}
+
+				text_single = {
+					visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
+					raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+					align = nobaseline
+				}
+			}
+
+			# My Realm & Holding Unmet Needs Breakdown
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				ignoreinvisible = yes
+				spacing = 4
+				datamodel = "[TradeMarket.GetRealmNeeds]"
+
+				item = {
+					vbox = {
+						visible = "[And( Not( TradeMarketRealmNeed.IsCategory ), ObjectsEqual( TradeMarketRealmNeed.GetTradeGoodType, TradeGoodType.Self ) )]"
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+
+						divider_light = {
+							layoutpolicy_horizontal = expanding
+						}
+
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 12
+
+							text_single = {
+								text = "SUI_MARKET_TT_REALM_UNMET"
+								default_format = "#high"
+								align = nobaseline
+							}
+
+							expand = {}
+
+							text_single = {
+								raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+								align = nobaseline
+							}
+						}
+
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 2
+							datamodel = "[TradeMarketRealmNeed.GetHoldings]"
+
+							item = {
+								hbox = {
+									layoutpolicy_horizontal = expanding
+									margin = { 6 2 }
+									spacing = 10
+
+									background = {
+										using = Background_Area_Dark
+										alpha = 0.5
+									}
+
+									text_single = {
+										text = "[TradeMarketUnmetNeed.GetTitle.GetNameNoTierNoTooltip]"
+										align = nobaseline
+									}
+
+									text_single = {
+										text = "SUI_MARKET_TT_PRIORITY"
+										align = nobaseline
+									}
+
+									expand = {}
+
+									text_single = {
+										raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+										align = nobaseline
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			# Current Holding Production Amount (for surplus/produced goods)
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				ignoreinvisible = yes
+				spacing = 4
+				datamodel = "[HoldingView.GetProductionItems]"
+
+				item = {
+					vbox = {
+						visible = "[ObjectsEqual( GUIProductionItem.GetTradeGoodType, TradeGoodType.Self )]"
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+
+						divider_light = {
+							layoutpolicy_horizontal = expanding
+						}
+
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 12
+
+							text_single = {
+								text = "SUI_MARKET_TT_HOLDING_PROD"
+								default_format = "#high"
+								align = nobaseline
+							}
+
+							expand = {}
+
+							text_single = {
+								raw_text = "#P ▲[GUIProductionItem.GetAmount|1^]#!"
+								align = nobaseline
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

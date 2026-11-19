@@ -1,0 +1,28 @@
+﻿ckto_reset_ratings_effect = {
+	set_variable = { name = ckto_tier_0 value = -1 days = 30 }
+	if = { limit = { has_variable = ckto_best_0 } remove_variable = ckto_best_0 }
+		if = { limit = { has_variable = ckto_inc_profit_0 } remove_variable = ckto_inc_profit_0 }
+		set_variable = { name = ckto_tier_1 value = -1 days = 30 }
+	if = { limit = { has_variable = ckto_best_1 } remove_variable = ckto_best_1 }
+		if = { limit = { has_variable = ckto_inc_profit_1 } remove_variable = ckto_inc_profit_1 }
+		set_variable = { name = ckto_tier_2 value = -1 days = 30 }
+	if = { limit = { has_variable = ckto_best_2 } remove_variable = ckto_best_2 }
+		if = { limit = { has_variable = ckto_inc_profit_2 } remove_variable = ckto_inc_profit_2 }
+}
+ckto_clear_ratings_effect = {
+	if = { limit = { has_variable = ckto_tier_0 } remove_variable = ckto_tier_0 }
+		if = { limit = { has_variable = ckto_best_0 } remove_variable = ckto_best_0 }
+		if = { limit = { has_variable = ckto_inc_profit_0 } remove_variable = ckto_inc_profit_0 }
+		if = { limit = { has_variable = ckto_try_0 } remove_variable = ckto_try_0 }
+		if = { limit = { has_variable = ckto_safe_0 } remove_variable = ckto_safe_0 }
+		if = { limit = { has_variable = ckto_tier_1 } remove_variable = ckto_tier_1 }
+		if = { limit = { has_variable = ckto_best_1 } remove_variable = ckto_best_1 }
+		if = { limit = { has_variable = ckto_inc_profit_1 } remove_variable = ckto_inc_profit_1 }
+		if = { limit = { has_variable = ckto_try_1 } remove_variable = ckto_try_1 }
+		if = { limit = { has_variable = ckto_safe_1 } remove_variable = ckto_safe_1 }
+		if = { limit = { has_variable = ckto_tier_2 } remove_variable = ckto_tier_2 }
+		if = { limit = { has_variable = ckto_best_2 } remove_variable = ckto_best_2 }
+		if = { limit = { has_variable = ckto_inc_profit_2 } remove_variable = ckto_inc_profit_2 }
+		if = { limit = { has_variable = ckto_try_2 } remove_variable = ckto_try_2 }
+		if = { limit = { has_variable = ckto_safe_2 } remove_variable = ckto_safe_2 }
+}

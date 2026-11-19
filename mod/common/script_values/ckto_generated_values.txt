@@ -1,0 +1,6 @@
+﻿ckto_apt_0 = { value = martial add = intrigue divide = 2 add = scope:ckto_bonus } # manage_competition
+ckto_tier_0 = { value = 0 if = { limit = { ckto_apt_0 >= 5 } add = 1 } if = { limit = { ckto_apt_0 >= 8 } add = 1 } if = { limit = { ckto_apt_0 >= 13 } add = 1 } if = { limit = { ckto_apt_0 >= 21 } add = 1 } }
+ckto_apt_1 = { value = diplomacy add = learning divide = 2 add = scope:ckto_bonus } # negotiate_deals
+ckto_tier_1 = { value = 0 if = { limit = { ckto_apt_1 >= 5 } add = 1 } if = { limit = { ckto_apt_1 >= 8 } add = 1 } if = { limit = { ckto_apt_1 >= 13 } add = 1 } if = { limit = { ckto_apt_1 >= 21 } add = 1 } }
+ckto_apt_2 = { value = stewardship add = scope:ckto_bonus } # oversee_caravans
+ckto_tier_2 = { value = 0 if = { limit = { ckto_apt_2 >= 5 } add = 1 } if = { limit = { ckto_apt_2 >= 8 } add = 1 } if = { limit = { ckto_apt_2 >= 13 } add = 1 } if = { limit = { ckto_apt_2 >= 21 } add = 1 } }

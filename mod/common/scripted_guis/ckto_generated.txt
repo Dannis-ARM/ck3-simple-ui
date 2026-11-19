@@ -1,0 +1,131 @@
+﻿ckto_rate_person = {
+	scope = character
+	saved_scopes = { person }
+	effect = {
+		save_temporary_scope_value_as = {
+			name = ckto_bonus
+			value = { value = 0 if = { limit = { dynasty ?= { has_dynasty_perk = gdp_merchant_legacy_3 } } add = gdp_merchant_legacy_3_trader_aptitude_value } }
+		}
+		scope:person = {
+			save_temporary_scope_value_as = { name = ckto_t0 value = ckto_tier_0 }
+		save_temporary_scope_value_as = { name = ckto_t1 value = ckto_tier_1 }
+		save_temporary_scope_value_as = { name = ckto_t2 value = ckto_tier_2 }
+		}
+		# Best tier per task wins; the current trader keeps ties.
+		if = {
+			limit = {
+				OR = {
+					scope:ckto_t0 > var:ckto_tier_0
+					AND = { scope:ckto_t0 = var:ckto_tier_0 has_variable = ckto_incumbent scope:person = var:ckto_incumbent }
+				}
+			}
+			set_variable = { name = ckto_tier_0 value = scope:ckto_t0 days = 30 }
+			set_variable = { name = ckto_best_0 value = scope:person days = 30 }
+		}
+		if = {
+			limit = {
+				OR = {
+					scope:ckto_t1 > var:ckto_tier_1
+					AND = { scope:ckto_t1 = var:ckto_tier_1 has_variable = ckto_incumbent scope:person = var:ckto_incumbent }
+				}
+			}
+			set_variable = { name = ckto_tier_1 value = scope:ckto_t1 days = 30 }
+			set_variable = { name = ckto_best_1 value = scope:person days = 30 }
+		}
+		if = {
+			limit = {
+				OR = {
+					scope:ckto_t2 > var:ckto_tier_2
+					AND = { scope:ckto_t2 = var:ckto_tier_2 has_variable = ckto_incumbent scope:person = var:ckto_incumbent }
+				}
+			}
+			set_variable = { name = ckto_tier_2 value = scope:ckto_t2 days = 30 }
+			set_variable = { name = ckto_best_2 value = scope:person days = 30 }
+		}
+	}
+}
+ckto_record_inc = {
+	scope = character
+	saved_scopes = { profit index }
+	effect = {
+		if = { limit = { scope:index = 0 } set_variable = { name = ckto_inc_profit_0 value = scope:profit days = 30 } }
+		if = { limit = { scope:index = 1 } set_variable = { name = ckto_inc_profit_1 value = scope:profit days = 30 } }
+		if = { limit = { scope:index = 2 } set_variable = { name = ckto_inc_profit_2 value = scope:profit days = 30 } }
+	}
+}
+# A task is tried when its top-rated person is not the current trader. While the current trader
+# is still in the slot, only tasks that are already their best are safe to swap on.
+ckto_plan_trials = {
+	scope = character
+	effect = {
+		set_variable = { name = ckto_try_0 value = 0 days = 30 }
+		set_variable = { name = ckto_safe_0 value = 0 days = 30 }
+		if = {
+			limit = {
+				has_variable = ckto_best_0
+				OR = { NOT = { has_variable = ckto_incumbent } NOT = { var:ckto_best_0 = var:ckto_incumbent } }
+			}
+			set_variable = { name = ckto_try_0 value = 1 days = 30 }
+			if = {
+				limit = { has_variable = ckto_incumbent has_variable = ckto_inc_profit_0 var:ckto_inc_profit_0 >= var:ckto_best_profit }
+				set_variable = { name = ckto_safe_0 value = 1 days = 30 }
+			}
+		}
+		set_variable = { name = ckto_try_1 value = 0 days = 30 }
+		set_variable = { name = ckto_safe_1 value = 0 days = 30 }
+		if = {
+			limit = {
+				has_variable = ckto_best_1
+				OR = { NOT = { has_variable = ckto_incumbent } NOT = { var:ckto_best_1 = var:ckto_incumbent } }
+			}
+			set_variable = { name = ckto_try_1 value = 1 days = 30 }
+			if = {
+				limit = { has_variable = ckto_incumbent has_variable = ckto_inc_profit_1 var:ckto_inc_profit_1 >= var:ckto_best_profit }
+				set_variable = { name = ckto_safe_1 value = 1 days = 30 }
+			}
+		}
+		set_variable = { name = ckto_try_2 value = 0 days = 30 }
+		set_variable = { name = ckto_safe_2 value = 0 days = 30 }
+		if = {
+			limit = {
+				has_variable = ckto_best_2
+				OR = { NOT = { has_variable = ckto_incumbent } NOT = { var:ckto_best_2 = var:ckto_incumbent } }
+			}
+			set_variable = { name = ckto_try_2 value = 1 days = 30 }
+			if = {
+				limit = { has_variable = ckto_incumbent has_variable = ckto_inc_profit_2 var:ckto_inc_profit_2 >= var:ckto_best_profit }
+				set_variable = { name = ckto_safe_2 value = 1 days = 30 }
+			}
+		}
+	}
+}
+ckto_mark_tried = {
+	scope = character
+	saved_scopes = { index }
+	effect = {
+		if = { limit = { scope:index = 0 } set_variable = { name = ckto_try_0 value = 0 days = 30 } }
+		if = { limit = { scope:index = 1 } set_variable = { name = ckto_try_1 value = 0 days = 30 } }
+		if = { limit = { scope:index = 2 } set_variable = { name = ckto_try_2 value = 0 days = 30 } }
+	}
+}
+ckto_choose_task = {
+	scope = character
+	saved_scopes = { index }
+	effect = {
+		if = {
+			limit = { scope:index = 0 has_variable = ckto_best_0 }
+			set_variable = { name = ckto_winner value = var:ckto_best_0 days = 30 }
+			set_variable = { name = ckto_winner_task value = 0 days = 30 }
+		}
+		if = {
+			limit = { scope:index = 1 has_variable = ckto_best_1 }
+			set_variable = { name = ckto_winner value = var:ckto_best_1 days = 30 }
+			set_variable = { name = ckto_winner_task value = 1 days = 30 }
+		}
+		if = {
+			limit = { scope:index = 2 has_variable = ckto_best_2 }
+			set_variable = { name = ckto_winner value = var:ckto_best_2 days = 30 }
+			set_variable = { name = ckto_winner_task value = 2 days = 30 }
+		}
+	}
+}
