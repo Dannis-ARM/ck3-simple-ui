@@ -3213,16 +3213,15 @@ types CountyViewTypes {
 
 		}
 
+		# [SUI] START - 건설된 슬롯=금색 원, 빈 슬롯=회색 원
 		flowcontainer = {
 			name = "filled_slots"
 			datamodel = "[RepeatedItem( GUIDistrictItem.GetNumberOfBuildings )]"
-			spacing = 1
+			spacing = 3
 
 			item = {
 				icon_district_building_slot = {
-					blockoverride "master_color_frame" {
-						frame = 5
-					}
+					color = { 0.95 0.78 0.30 1.0 }
 				}
 			}
 		}
@@ -3230,17 +3229,15 @@ types CountyViewTypes {
 		flowcontainer = {
 			name = "free_slots"
 			datamodel = "[RepeatedItem( GUIDistrictItem.GetNumberOfFreeBuildingSlots )]"
-			spacing = 1
+			spacing = 3
 
 			item = {
 				icon_district_building_slot = {
-					alpha = 1
-					blockoverride "master_color_frame" {
-						frame = 7
-					}
+					color = { 0.45 0.45 0.48 0.85 }
 				}
 			}
 		}
+		# [SUI] END
 	}
 
 	type icon_holding_district_art = icon {
@@ -3658,39 +3655,39 @@ types CountyViewTypes {
 		name = "building_level_icon"
 		visible = "[GUIBuildingItem.HasBuilding]"
 
-		background = {
-			using = Background_Area_Border_Solid
-			alpha = 0.65
-
-			modify_texture = {
-				texture = "gfx/interface/component_masks/mask_fade_circle_hard.dds"
-				blend_mode = alphamultiply
-			}
-			block "bg_margin_size" {
-				margin = { 1 1 }
-			}
+		icon = {
+			size = { 100% 100% }
+			texture = "gfx/interface/window_regency/regency_level_bg.dds"
+			alwaystransparent = yes
 		}
 
 		text_single = {
 			parentanchor = center
 			raw_text = "[GUIBuildingItem.GetCurrentOrConstrucingBuilding.GetLevel]"
 			default_format = "#high"
-			fontsize = 16
+			fontsize = 14
 			align = nobaseline
 			alwaystransparent = yes
 		}
 	# [SUI] END
 		block "icon_size" {
-			size = { 20 20 }
+			size = { 24 24 }
 		}
 	}
 
-	type icon_district_building_slot = icon_flat_standard {
+	# [SUI] START - 지구 슬롯 인디케이터를 원형(건설됨=금색, 빈 슬롯=회색)으로 변경
+	type icon_district_building_slot = icon {
 		alwaystransparent = yes
-		size = { 5 5 }
-		texture = "gfx/interface/colors/black.dds"
+		size = { 7 7 }
+		texture = "gfx/interface/colors/white.dds"
 		alpha = 1
+
+		modify_texture = {
+			texture = "gfx/interface/component_masks/mask_fade_circle_hard.dds"
+			blend_mode = alphamultiply
+		}
 	}
+	# [SUI] END
 
 	# used for the main building
 	type widget_building_item = widget {
@@ -3732,7 +3729,7 @@ types CountyViewTypes {
 
 		icon_building_level = {
 			parentanchor = top|left
-			position = { 3 2 }
+			position = { -5 -5 }
 		}
 
 		button_icon_can_upgrade = {
@@ -4160,9 +4157,9 @@ types CountyViewTypes {
 
 			icon_building_level = {
 				parentanchor = top|left
-				position = { 2 2 }
+				position = { -4 -4 }
 				blockoverride "icon_size" {
-					size = { 16 16 }
+					size = { 20 20 }
 				}
 			}
 		}
@@ -7109,182 +7106,126 @@ types CountyViewTypes {
 
 						vbox = {
 							layoutpolicy_horizontal = expanding
+							margin_right = 16
 							ignoreinvisible = yes
 							spacing = 3
 							datamodel = "[GUIPotentialItem.GetBuildingNeeds]"
 
 							item = {
-								hbox = {
+								widget = {
 									layoutpolicy_horizontal = expanding
+									size = { 0 26 }
+									tooltipwidget = {
+										building_need_tooltip = {}
+									}
 
-									widget = {
-										size = { 220 26 }
-										tooltipwidget = {
-											building_need_tooltip = {}
+									# 미충족 / 일부 충족 상태 (일부 충족=노랑, 미충족=빨강 외곽선)
+									hbox = {
+										visible = "[Not( GUIBuildingNeedItem.IsCompletelyFilled )]"
+										size = { 100% 100% }
+										margin = { 6 2 }
+										spacing = 5
+										alpha = "[Select_float( GUIBuildingNeedItem.IsDimmed, '(float)0.65', '(float)0.9' )]"
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.8
 										}
 
-										# 미충족 상태 (회색/흐림)
-										hbox = {
-											visible = "[Not( GUIBuildingNeedItem.IsCompletelyFilled )]"
-											size = { 100% 100% }
-											margin = { 6 2 }
-											spacing = 5
-											alpha = 0.55
-
-											background = {
-												using = Background_Area_Dark
-												alpha = 0.7
-											}
-
-											background = {
-												using = Background_Frame
-												alpha = 0.5
-											}
-
-											icon = {
-												visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-												size = { 20 20 }
-												texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
-											}
-
-											icon = {
-												visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-												size = { 20 20 }
-												texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
-											}
-
-											text_single = {
-												visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-												text = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetNameNoTooltip]"
-												align = nobaseline
-											}
-
-											text_single = {
-												visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-												text = "[GUIBuildingNeedItem.GetTradeGoodType.GetNameNoTooltip]"
-												align = nobaseline
-											}
-
-											expand = {}
-
-											text_single = {
-												visible = "[Not( GUIBuildingNeedItem.IsRepeating )]"
-												raw_text = "#N [GUIBuildingNeedItem.GetMaxNeededAmount|0^]#!"
-												align = nobaseline
-											}
-
-											flowcontainer = {
-												visible = "[GUIBuildingNeedItem.IsRepeating]"
-												direction = horizontal
-												spacing = 2
-												datamodel = "[GUIBuildingNeedItem.GetChecklist]"
-
-												item = {
-													flowcontainer = {
-														direction = horizontal
-														spacing = 2
-
-														text_single = {
-															visible = "[GreaterThan_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)0' )]"
-															raw_text = "#weak ·#!"
-															align = nobaseline
-														}
-
-														text_single = {
-															visible = "[BuildingNeedChecklistSlot.IsFilled]"
-															raw_text = "#P [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-															align = nobaseline
-														}
-
-														text_single = {
-															visible = "[Not( BuildingNeedChecklistSlot.IsFilled )]"
-															raw_text = "#N [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-															align = nobaseline
-														}
-													}
-												}
-											}
+										background = {
+											visible = "[Not( GUIBuildingNeedItem.IsDimmed )]"
+											using = Background_Frame
+											color = { 0.9 0.75 0.25 0.75 }
 										}
 
-										# 충족 상태 (녹색 외곽선 + 선명)
-										hbox = {
-											visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
-											size = { 100% 100% }
-											margin = { 6 2 }
-											spacing = 5
+										background = {
+											visible = "[GUIBuildingNeedItem.IsDimmed]"
+											using = Background_Frame
+											color = { 0.85 0.35 0.3 0.7 }
+										}
 
-											background = {
-												using = Background_Area_Dark
-												alpha = 0.9
-											}
+										icon = {
+											visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+											size = { 20 20 }
+											texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
+										}
 
-											background = {
-												using = Background_Frame
-												color = { 0.3 0.8 0.4 0.7 }
-											}
+										icon = {
+											visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+											size = { 20 20 }
+											texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
+										}
 
-											icon = {
-												visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-												size = { 20 20 }
-												texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
-											}
+										text_single = {
+											visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+											text = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetNameNoTooltip]"
+											align = nobaseline
+										}
 
-											icon = {
-												visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-												size = { 20 20 }
-												texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
-											}
+										text_single = {
+											visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+											text = "[GUIBuildingNeedItem.GetTradeGoodType.GetNameNoTooltip]"
+											align = nobaseline
+										}
 
-											text_single = {
-												visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-												text = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetNameNoTooltip]"
-												default_format = "#high"
-												align = nobaseline
-											}
+										expand = {}
 
-											text_single = {
-												visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-												text = "[GUIBuildingNeedItem.GetTradeGoodType.GetNameNoTooltip]"
-												default_format = "#high"
-												align = nobaseline
-											}
-
-											expand = {}
-
-											text_single = {
-												visible = "[Not( GUIBuildingNeedItem.IsRepeating )]"
-												raw_text = "#P [GUIBuildingNeedItem.GetMaxNeededAmount|0^]#!"
-												align = nobaseline
-											}
-
-											flowcontainer = {
-												visible = "[GUIBuildingNeedItem.IsRepeating]"
-												direction = horizontal
-												spacing = 2
-												datamodel = "[GUIBuildingNeedItem.GetChecklist]"
-
-												item = {
-													flowcontainer = {
-														direction = horizontal
-														spacing = 2
-
-														text_single = {
-															visible = "[GreaterThan_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)0' )]"
-															raw_text = "#weak ·#!"
-															align = nobaseline
-														}
-
-														text_single = {
-															raw_text = "#P [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-															align = nobaseline
-														}
-													}
-												}
-											}
+										text_single = {
+											text = "BUILDING_NEED_AMOUNT"
+											align = nobaseline
 										}
 									}
 
-									expand = {}
+									# 충족 상태 (녹색 외곽선 + 선명)
+									hbox = {
+										visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
+										size = { 100% 100% }
+										margin = { 6 2 }
+										spacing = 5
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.9
+										}
+
+										background = {
+											using = Background_Frame
+											color = { 0.3 0.8 0.4 0.7 }
+										}
+
+										icon = {
+											visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+											size = { 20 20 }
+											texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
+										}
+
+										icon = {
+											visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+											size = { 20 20 }
+											texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
+										}
+
+										text_single = {
+											visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+											text = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetNameNoTooltip]"
+											default_format = "#high"
+											align = nobaseline
+										}
+
+										text_single = {
+											visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+											text = "[GUIBuildingNeedItem.GetTradeGoodType.GetNameNoTooltip]"
+											default_format = "#high"
+											align = nobaseline
+										}
+
+										expand = {}
+
+										text_single = {
+											text = "BUILDING_NEED_AMOUNT"
+											align = nobaseline
+										}
+									}
 								}
 							}
 						}
@@ -7343,6 +7284,18 @@ types CountyViewTypes {
 													color = { 0.3 0.8 0.4 0.7 }
 												}
 
+												background = {
+													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+													using = Background_Frame
+													color = { 0.9 0.75 0.25 0.75 }
+												}
+
+												background = {
+													visible = "[GUIBuildingNeedItem.IsDimmed]"
+													using = Background_Frame
+													color = { 0.85 0.35 0.3 0.7 }
+												}
+
 												tooltipwidget = {
 													building_need_tooltip = {}
 												}
@@ -7368,55 +7321,86 @@ types CountyViewTypes {
 												}
 											}
 
-											# 반복 단계
-											vbox = {
+											# 반복 단계 (테이블형: [아이콘] [옵션] [×실제/최대])
+											hbox = {
 												visible = "[GUIBuildingNeedItem.IsRepeating]"
 												layoutpolicy_horizontal = expanding
-												spacing = 3
-												datamodel = "[GUIBuildingNeedItem.GetChecklist]"
+												margin = { 6 4 }
+												spacing = 8
+												alpha = "[Select_float( GUIBuildingNeedItem.IsDimmed, '(float)0.65', '(float)1.0' )]"
 
-												item = {
-													hbox = {
-														layoutpolicy_horizontal = expanding
-														margin = { 6 4 }
-														spacing = 8
-														alpha = "[Select_float( BuildingNeedChecklistSlot.IsFilled, '(float)1.0', '(float)0.4' )]"
+												background = {
+													using = Background_Area_Dark
+													alpha = 0.45
+												}
 
-														background = {
-															using = Background_Area_Dark
-															alpha = 0.45
-														}
+												background = {
+													visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
+													using = Background_Frame
+													color = { 0.3 0.8 0.4 0.7 }
+												}
 
-														background = {
-															visible = "[BuildingNeedChecklistSlot.IsFilled]"
-															using = Background_Frame
-															color = { 0.3 0.8 0.4 0.7 }
-														}
+												background = {
+													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+													using = Background_Frame
+													color = { 0.9 0.75 0.25 0.75 }
+												}
 
-														tooltipwidget = {
-															building_need_tooltip = {}
-														}
+												background = {
+													visible = "[GUIBuildingNeedItem.IsDimmed]"
+													using = Background_Frame
+													color = { 0.85 0.35 0.3 0.7 }
+												}
 
-														icon = {
-															visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-															size = { 20 20 }
-															texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
-														}
+												tooltipwidget = {
+													building_need_tooltip = {}
+												}
 
-														icon = {
-															visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-															size = { 20 20 }
-															texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
-														}
+												icon = {
+													visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+													size = { 20 20 }
+													texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
+												}
 
-														text_multi = {
-															layoutpolicy_horizontal = expanding
-															min_width = 380
-															max_width = 400
-															autoresize = yes
-															text = "[GUIBuildingNeedItem.GetPerLevelModifierDescription( Character.Self )]"
-														}
-													}
+												icon = {
+													visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+													size = { 20 20 }
+													texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
+												}
+
+												text_multi = {
+													layoutpolicy_horizontal = expanding
+													min_width = 300
+													max_width = 330
+													autoresize = yes
+													text = "[GUIBuildingNeedItem.GetPerLevelModifierDescription( Character.Self )]"
+												}
+
+												expand = {}
+
+												text_single = {
+													visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
+													raw_text = "#P;bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
+													fontsize = 20
+													margin_right = 6
+													align = nobaseline
+												}
+
+												text_single = {
+													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+													raw_text = "#bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
+													fonttintcolor = { 0.95 0.80 0.25 1.0 }
+													fontsize = 20
+													margin_right = 6
+													align = nobaseline
+												}
+
+												text_single = {
+													visible = "[GUIBuildingNeedItem.IsDimmed]"
+													raw_text = "#N;bold ×0#!"
+													fontsize = 20
+													margin_right = 6
+													align = nobaseline
 												}
 											}
 										}
@@ -9097,6 +9081,7 @@ types CountyViewTypes {
 
 												vbox = {
 													layoutpolicy_horizontal = expanding
+													margin_right = 16
 													ignoreinvisible = yes
 													spacing = 3
 													datamodel = "[GUITrackItem.GetSelectedBuildingNeeds]"
@@ -9106,27 +9091,35 @@ types CountyViewTypes {
 															layoutpolicy_horizontal = expanding
 
 															widget = {
-																size = { 220 26 }
+																layoutpolicy_horizontal = expanding
+																size = { 0 26 }
 																tooltipwidget = {
 																	building_need_tooltip = {}
 																}
 
-														# 미충족 상태 (회색/흐림)
+														# 미충족 / 일부 충족 상태 (일부 충족=노랑, 미충족=빨강 외곽선)
 														hbox = {
 															visible = "[Not( GUIBuildingNeedItem.IsCompletelyFilled )]"
 															size = { 100% 100% }
 															margin = { 6 2 }
 															spacing = 5
-															alpha = 0.55
+															alpha = "[Select_float( GUIBuildingNeedItem.IsDimmed, '(float)0.65', '(float)0.9' )]"
 
 															background = {
 																using = Background_Area_Dark
-																alpha = 0.7
+																alpha = 0.8
 															}
 
 															background = {
+																visible = "[Not( GUIBuildingNeedItem.IsDimmed )]"
 																using = Background_Frame
-																alpha = 0.5
+																color = { 0.9 0.75 0.25 0.75 }
+															}
+
+															background = {
+																visible = "[GUIBuildingNeedItem.IsDimmed]"
+																using = Background_Frame
+																color = { 0.85 0.35 0.3 0.7 }
 															}
 
 															icon = {
@@ -9155,44 +9148,9 @@ types CountyViewTypes {
 
 															expand = {}
 
-															# 단일 단계 (비반복)
 															text_single = {
-																visible = "[Not( GUIBuildingNeedItem.IsRepeating )]"
-																raw_text = "#N [GUIBuildingNeedItem.GetMaxNeededAmount|0^]#!"
+																text = "BUILDING_NEED_AMOUNT"
 																align = nobaseline
-															}
-
-															# 반복 단계 (예: 5·10, 3·6 — 충족 단계는 녹색, 미충족 단계는 빨강)
-															flowcontainer = {
-																visible = "[GUIBuildingNeedItem.IsRepeating]"
-																direction = horizontal
-																spacing = 2
-																datamodel = "[GUIBuildingNeedItem.GetChecklist]"
-
-																item = {
-																	flowcontainer = {
-																		direction = horizontal
-																		spacing = 2
-
-																		text_single = {
-																			visible = "[GreaterThan_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)0' )]"
-																			raw_text = "#weak ·#!"
-																			align = nobaseline
-																		}
-
-																		text_single = {
-																			visible = "[BuildingNeedChecklistSlot.IsFilled]"
-																			raw_text = "#P [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-																			align = nobaseline
-																		}
-
-																		text_single = {
-																			visible = "[Not( BuildingNeedChecklistSlot.IsFilled )]"
-																			raw_text = "#N [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-																			align = nobaseline
-																		}
-																	}
-																}
 															}
 														}
 
@@ -9241,37 +9199,9 @@ types CountyViewTypes {
 
 															expand = {}
 
-															# 단일 단계 (비반복)
 															text_single = {
-																visible = "[Not( GUIBuildingNeedItem.IsRepeating )]"
-																raw_text = "#P [GUIBuildingNeedItem.GetMaxNeededAmount|0^]#!"
+																text = "BUILDING_NEED_AMOUNT"
 																align = nobaseline
-															}
-
-															# 반복 단계 (전부 충족 — 예: 3·6 모두 녹색)
-															flowcontainer = {
-																visible = "[GUIBuildingNeedItem.IsRepeating]"
-																direction = horizontal
-																spacing = 2
-																datamodel = "[GUIBuildingNeedItem.GetChecklist]"
-
-																item = {
-																	flowcontainer = {
-																		direction = horizontal
-																		spacing = 2
-
-																		text_single = {
-																			visible = "[GreaterThan_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)0' )]"
-																			raw_text = "#weak ·#!"
-																			align = nobaseline
-																		}
-
-																		text_single = {
-																			raw_text = "#P [Multiply_CFixedPoint( Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ), IntToFixedPoint( Add_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)1' ) ) )|0^]#!"
-																			align = nobaseline
-																		}
-																	}
-																}
 															}
 														}
 													}
@@ -9341,6 +9271,18 @@ types CountyViewTypes {
 																				color = { 0.3 0.8 0.4 0.7 }
 																			}
 
+																			background = {
+																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+																				using = Background_Frame
+																				color = { 0.9 0.75 0.25 0.75 }
+																			}
+
+																			background = {
+																				visible = "[GUIBuildingNeedItem.IsDimmed]"
+																				using = Background_Frame
+																				color = { 0.85 0.35 0.3 0.7 }
+																			}
+
 																			tooltipwidget = {
 																				building_need_tooltip = {}
 																			}
@@ -9366,55 +9308,86 @@ types CountyViewTypes {
 																			}
 																		}
 
-																		# 반복 단계 (단계별 1줄씩 표시 — 실제 반영된 단계만 선명, 미충족 단계는 회색 흐림)
-																		vbox = {
+																		# 반복 단계 (테이블형: [아이콘] [옵션] [×실제/최대])
+																		hbox = {
 																			visible = "[GUIBuildingNeedItem.IsRepeating]"
 																			layoutpolicy_horizontal = expanding
-																			spacing = 3
-																			datamodel = "[GUIBuildingNeedItem.GetChecklist]"
+																			margin = { 6 4 }
+																			spacing = 8
+																			alpha = "[Select_float( GUIBuildingNeedItem.IsDimmed, '(float)0.65', '(float)1.0' )]"
 
-																			item = {
-																				hbox = {
-																					layoutpolicy_horizontal = expanding
-																					margin = { 6 4 }
-																					spacing = 8
-																					alpha = "[Select_float( BuildingNeedChecklistSlot.IsFilled, '(float)1.0', '(float)0.4' )]"
+																			background = {
+																				using = Background_Area_Dark
+																				alpha = 0.45
+																			}
 
-																					background = {
-																						using = Background_Area_Dark
-																						alpha = 0.45
-																					}
+																			background = {
+																				visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
+																				using = Background_Frame
+																				color = { 0.3 0.8 0.4 0.7 }
+																			}
 
-																					background = {
-																						visible = "[BuildingNeedChecklistSlot.IsFilled]"
-																						using = Background_Frame
-																						color = { 0.3 0.8 0.4 0.7 }
-																					}
+																			background = {
+																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+																				using = Background_Frame
+																				color = { 0.9 0.75 0.25 0.75 }
+																			}
 
-																					tooltipwidget = {
-																						building_need_tooltip = {}
-																					}
+																			background = {
+																				visible = "[GUIBuildingNeedItem.IsDimmed]"
+																				using = Background_Frame
+																				color = { 0.85 0.35 0.3 0.7 }
+																			}
 
-																					icon = {
-																						visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
-																						size = { 20 20 }
-																						texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
-																					}
+																			tooltipwidget = {
+																				building_need_tooltip = {}
+																			}
 
-																					icon = {
-																						visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
-																						size = { 20 20 }
-																						texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
-																					}
+																			icon = {
+																				visible = "[GUIBuildingNeedItem.IsCategoryNeed]"
+																				size = { 20 20 }
+																				texture = "[GUIBuildingNeedItem.GetTradeGoodCategory.GetSmallIcon]"
+																			}
 
-																					text_multi = {
-																						layoutpolicy_horizontal = expanding
-																						min_width = 380
-																						max_width = 400
-																						autoresize = yes
-																						text = "[GUIBuildingNeedItem.GetPerLevelModifierDescription( Character.Self )]"
-																					}
-																				}
+																			icon = {
+																				visible = "[Not( GUIBuildingNeedItem.IsCategoryNeed )]"
+																				size = { 20 20 }
+																				texture = "[GUIBuildingNeedItem.GetTradeGoodType.GetIcon]"
+																			}
+
+																			text_multi = {
+																				layoutpolicy_horizontal = expanding
+																				min_width = 300
+																				max_width = 330
+																				autoresize = yes
+																				text = "[GUIBuildingNeedItem.GetPerLevelModifierDescription( Character.Self )]"
+																			}
+
+																			expand = {}
+
+																			text_single = {
+																				visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
+																				raw_text = "#P;bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
+																				fontsize = 20
+																				margin_right = 6
+																				align = nobaseline
+																			}
+
+																			text_single = {
+																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
+																				raw_text = "#bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
+																				fonttintcolor = { 0.95 0.80 0.25 1.0 }
+																				fontsize = 20
+																				margin_right = 6
+																				align = nobaseline
+																			}
+
+																			text_single = {
+																				visible = "[GUIBuildingNeedItem.IsDimmed]"
+																				raw_text = "#N;bold ×0#!"
+																				fontsize = 20
+																				margin_right = 6
+																				align = nobaseline
 																			}
 																		}
 																	}

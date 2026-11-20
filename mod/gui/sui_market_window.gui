@@ -11,7 +11,7 @@ types SimpleUIMarketTypes
 
 		visible = "[And( GetVariableSystem.Exists( 'sui_market_window_open' ), TradeMarket.IsValid )]"
 		position = { 630 80 }
-		size = { 540 620 }
+		size = { 570 620 }
 		movable = yes
 		allow_outside = yes
 		layer = middle
@@ -110,6 +110,19 @@ types SimpleUIMarketTypes
 				layoutpolicy_horizontal = expanding
 				layoutpolicy_vertical = expanding
 
+				background = {
+					texture = "gfx/interface/illustrations/event_scenes/gdp_italian_market.dds"
+					fittype = centercrop
+					alpha = 0.28
+					using = Mask_Rough_Edges
+
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_vertical.dds"
+						blend_mode = alphamultiply
+						mirror = vertical
+					}
+				}
+
 				blockoverride "scrollbox_content"
 				{
 					hbox = {
@@ -122,6 +135,8 @@ types SimpleUIMarketTypes
 						vbox = {
 							layoutpolicy_horizontal = expanding
 							layoutpolicy_vertical = expanding
+							min_width = 215
+							max_width = 215
 							spacing = 6
 
 							text_label_left = {
@@ -151,6 +166,8 @@ types SimpleUIMarketTypes
 						vbox = {
 							layoutpolicy_horizontal = expanding
 							layoutpolicy_vertical = expanding
+							min_width = 215
+							max_width = 215
 							spacing = 6
 
 							text_label_left = {
@@ -178,19 +195,168 @@ types SimpleUIMarketTypes
 	}
 
 	type sui_market_category_row = vbox {
-		visible = "[TradeMarket.CategoryHasGoodsWithBalance( TradeGoodCategory.Self )]"
 		layoutpolicy_horizontal = expanding
 		ignoreinvisible = yes
 		spacing = 2
-		datamodel = "[TradeGoodCategory.GetTradeGoodTypes]"
 
-		item = {
-			sui_market_good_chip = {}
+		# 내 봉역에서 부족한 카테고리(통합 품목: 곡물, 육류, 음료 등) 표시
+		vbox = {
+			layoutpolicy_horizontal = expanding
+			ignoreinvisible = yes
+			spacing = 2
+			datamodel = "[TradeMarket.GetRealmNeeds]"
+
+			item = {
+				widget = {
+					visible = "[And3( TradeMarketRealmNeed.IsCategory, ObjectsEqual( TradeMarketRealmNeed.GetCategory, TradeGoodCategory.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarketRealmNeed.GetTotalUnmet, '(CFixedPoint)0.1' ) )]"
+					layoutpolicy_horizontal = expanding
+					size = { 0 28 }
+
+					tooltipwidget = {
+						sui_market_category_need_tooltip = {}
+					}
+
+					hbox = {
+						size = { 100% 100% }
+						margin = { 6 2 }
+						spacing = 6
+
+						background = {
+							using = Background_Area_Dark
+							alpha = 0.95
+						}
+
+						background = {
+							using = Background_Frame
+							color = { 0.85 0.35 0.3 0.7 }
+						}
+
+						icon = {
+							size = { 20 20 }
+							texture = "[TradeGoodCategory.GetSmallIcon]"
+						}
+
+						text_single = {
+							text = "[TradeGoodCategory.GetNameNoTooltip]"
+							default_format = "#high"
+							align = nobaseline
+						}
+
+						expand = {}
+
+						text_single = {
+							raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+							align = nobaseline
+						}
+					}
+				}
+			}
+		}
+
+		# 개별 교역품 목록
+		vbox = {
+			visible = "[TradeMarket.CategoryHasGoodsWithBalance( TradeGoodCategory.Self )]"
+			layoutpolicy_horizontal = expanding
+			ignoreinvisible = yes
+			spacing = 2
+			datamodel = "[TradeGoodCategory.GetTradeGoodTypes]"
+
+			item = {
+				sui_market_good_chip = {}
+			}
+		}
+	}
+
+	type sui_market_category_need_tooltip = widget {
+		alwaystransparent = no
+		using = DefaultTooltipBackground
+
+		vbox = {
+			set_parent_size_to_minimum = yes
+			min_width = 240
+			margin = { 14 10 }
+			spacing = 6
+
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 6
+
+				icon = {
+					size = { 24 24 }
+					texture = "[TradeGoodCategory.GetSmallIcon]"
+				}
+
+				text_single = {
+					text = "[TradeGoodCategory.GetNameNoTooltip]"
+					default_format = "#T"
+					align = nobaseline
+				}
+
+				expand = {}
+			}
+
+			divider_light = {
+				layoutpolicy_horizontal = expanding
+			}
+
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 12
+
+				text_single = {
+					text = "SUI_MARKET_TT_REALM_UNMET"
+					default_format = "#high"
+					align = nobaseline
+				}
+
+				expand = {}
+
+				text_single = {
+					raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+					align = nobaseline
+				}
+			}
+
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 2
+				datamodel = "[TradeMarketRealmNeed.GetHoldings]"
+
+				item = {
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						margin = { 6 2 }
+						spacing = 10
+
+						background = {
+							using = Background_Area_Dark
+							alpha = 0.5
+						}
+
+						text_single = {
+							text = "[TradeMarketUnmetNeed.GetTitle.GetNameNoTierNoTooltip]"
+							align = nobaseline
+						}
+
+						text_single = {
+							text = "SUI_MARKET_TT_PRIORITY"
+							align = nobaseline
+						}
+
+						expand = {}
+
+						text_single = {
+							raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+							align = nobaseline
+						}
+					}
+				}
+			}
 		}
 	}
 
 	type sui_market_good_chip = widget {
-		visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThan_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0' ) )]"
+		visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) )]"
 		layoutpolicy_horizontal = expanding
 		size = { 0 28 }
 
