@@ -28,3 +28,6 @@
  SUI_CKTO_TASK_CARAVAN:0 "Safety & Efficiency"
  SUI_CKTO_TASK_CARAVAN_TT:0 "#T Safety & Efficiency (Oversee Caravans)#!\nAssigns the best trader for 'Oversee Caravans' to improve route safety and efficiency."
  SUI_COUNTY_PROD_COUNT:0 "#P ▲[GetDataModelSize( HoldingView.GetProductionItems )]#!"
+ SUI_INTERACTION_SHOW_ALL_GOODS:0 "Show All Goods"
+ SUI_CKTO_HINT_NO_MARKET:0 "#weak Select a starting trade market on the map first#!"
+ SUI_CKTO_HINT_NO_GOOD:0 "#weak Select a trade good from the list below first#!"

@@ -28,3 +28,6 @@
  SUI_CKTO_TASK_CARAVAN:0 "효율 우선"
  SUI_CKTO_TASK_CARAVAN_TT:0 "#T 효율 우선 (대상 감독)#!\n교역로 안전과 운송 효율을 높여주는 '대상 감독' 임무에 가장 적합한 무역상을 배정합니다."
  SUI_COUNTY_PROD_COUNT:0 "#P ▲[GetDataModelSize( HoldingView.GetProductionItems )]종#!"
+ SUI_INTERACTION_SHOW_ALL_GOODS:0 "전체 품목 보기"
+ SUI_CKTO_HINT_NO_MARKET:0 "#weak 먼저 지도에서 무역 시작 시장을 선택하세요#!"
+ SUI_CKTO_HINT_NO_GOOD:0 "#weak 아래 목록에서 거래할 상품을 먼저 선택하세요#!"

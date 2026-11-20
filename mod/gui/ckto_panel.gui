@@ -228,10 +228,29 @@ type ckto_panel = vbox {
     button_primary = {
       layoutpolicy_horizontal = expanding
       enabled = "[And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType))]"
+      alpha = "[Select_float( And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType)), '(float)1.0', '(float)0.4' )]"
       text = "ckto_optimize"
       tooltip = "ckto_help"
       onclick = "[GetVariableSystem.Set('ckto_phase', 'route')]"
     }
+    # [SUI] START - 무역로 자동화 버튼 비활성화 시 원인별 안내 라벨 표시
+    text_single = {
+      visible = "[Not( TradeRoutePlanner.HasStartMarket )]"
+      layoutpolicy_horizontal = expanding
+      text = "SUI_CKTO_HINT_NO_MARKET"
+      using = Font_Size_Small
+      align = center|nobaseline
+      margin_top = 4
+    }
+    text_single = {
+      visible = "[And( TradeRoutePlanner.HasStartMarket, And( GetVariableSystem.Exists('ckto_locked'), Not( TradeRoutePlanner.HasSelectedTradeGoodType ) ) )]"
+      layoutpolicy_horizontal = expanding
+      text = "SUI_CKTO_HINT_NO_GOOD"
+      using = Font_Size_Small
+      align = center|nobaseline
+      margin_top = 4
+    }
+    # [SUI] END
   }
   hbox = {
     visible = "[Not(Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match')))]"

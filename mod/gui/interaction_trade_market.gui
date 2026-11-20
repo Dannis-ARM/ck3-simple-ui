@@ -1,0 +1,551 @@
+######################################################
+################# TRADE MARKET SELECT ################
+######################################################
+window = {
+	name = "trade_market_interaction_window"
+	datacontext = "[TradeMarketInteractionWindow.GetCharacterInteractionConfirmationWindow]"
+	parentanchor = center
+	position = { -100 5 }
+	movable = yes
+	layer = middle
+
+	using = Window_Background
+	using = Window_Decoration_Spike
+
+	state = {
+		name = _show
+		using = Animation_FadeIn_Quick
+		using = Sound_WindowShow_Standard
+		on_start = "[GetVariableSystem.Clear( 'character_interaction_change_trade_market' )]"
+		on_start = "[GetVariableSystem.Clear( 'character_interaction_change_trade_good' )]"
+		on_start = "[GetVariableSystem.Clear( 'character_interaction_change_trade_category' )]"
+	}
+
+	state = {
+		name = _hide
+		using = Animation_FadeOut_Quick
+		using = Sound_WindowHide_Standard
+	}
+
+	vbox = {
+		set_parent_size_to_minimum = yes
+		# Minimum size: monopoly, trade-good picker, toll grant or request (shorter, no acceptance measures), then default
+		minimumsize = "[Select_CVector2f( TradeMarketInteractionWindow.IsMonopolyInteraction, '(CVector2f)550,650', Select_CVector2f( CharacterInteractionConfirmationWindow.UsesTradeGoodTypeTarget, '(CVector2f)700,830', Select_CVector2f( Or( TradeMarketInteractionWindow.IsGrantTollInteraction, TradeMarketInteractionWindow.IsRequestTollInteraction ), '(CVector2f)550,630', '(CVector2f)550,830' ) ) )]"
+		ignoreinvisible = yes
+
+		using = Window_Margins
+		spacing = 0
+		margin_bottom = 40
+
+		header_pattern_interaction = {
+			layoutpolicy_horizontal = expanding
+
+			blockoverride "header_text"
+			{
+				text = "[CharacterInteractionConfirmationWindow.GetSendName]"
+				align = nobaseline
+			}
+
+			blockoverride "button_close"
+			{
+				onclick = "[TradeMarketInteractionWindow.Close]"
+			}
+
+			icon_character_interaction = {
+				blockoverride "interaction_icon_position"
+				{
+					position = { 0 0 }
+				}
+			}
+		}
+
+		vbox = {
+			margin = { 0 10 }
+			text_label_center = {
+				text = "CHARACTER_INTERACTION_SELECT_TRADE_MARKET_LABEL"
+			}
+		}
+
+		scrollbox = {
+			name = "trade_market_list"
+			layoutpolicy_horizontal = expanding
+			autoresizescrollarea = yes
+			maximumsize = { -1 145 }
+			min_width = 490
+
+			blockoverride "scrollbox_empty"
+			{
+				visible = "[Not( TradeMarketInteractionWindow.HasTradeMarkets )]"
+				text = "CHARACTER_INTERACTION_NO_TRADE_MARKETS"
+			}
+
+			blockoverride "scrollbox_content"
+			{
+				vbox = {
+					name = "trade_market_grid"
+					datamodel = "[TradeMarketInteractionWindow.GetAvailableTradeMarkets]"
+					layoutpolicy_horizontal = expanding
+					spacing = 7
+
+					item = {
+
+						hbox = {
+							layoutpolicy_horizontal = expanding
+
+							button_standard = {
+								layoutpolicy_horizontal = expanding
+
+								onclick = "[TradeMarketInteractionWindow.SelectTradeMarket( TradeMarket.Self )]"
+								down = "[TradeMarketInteractionWindow.IsTradeMarketSelected( TradeMarket.Self )]"
+
+								hbox = {
+									layoutpolicy_horizontal = expanding
+									margin = { 10 0 }
+
+									text_single = {
+										name = "name"
+										layoutpolicy_horizontal = expanding
+										autoresize = no
+
+										text = "[TradeMarket.GetNameNoTooltip]"
+										default_format = "#V"
+										align = nobaseline|center
+									}
+
+									blockoverride "toll_tooltip" {
+										tooltipwidget = {
+											widget_market_tolls_tooltip_main_window = {}
+										}
+									}
+
+									hbox_market_toll = {
+										datacontext = "[CharacterInteractionConfirmationWindow.GetRecipient]"
+										visible = "[Or( TradeMarketInteractionWindow.IsGrantTollInteraction, IsRevokeTollInteraction )]"
+									}
+
+									hbox_market_toll = {
+										datacontext = "[GetPlayer]"
+										visible = "[TradeMarketInteractionWindow.IsRequestTollInteraction]"
+									}
+								}
+							}
+
+							widget = {
+								size = { 33 33 }
+								button_icon_view_trade_market = {
+									parentanchor = center
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		spacer = {
+			visible = "[Or( CharacterInteractionConfirmationWindow.UsesTradeGoodTypeTarget, Or( TradeMarketInteractionWindow.IsRequestTollInteraction, TradeMarketInteractionWindow.IsGrantTollInteraction ) )]"
+			size = { 0 10 }
+		}
+
+		# [SUI] START - 무역로 의뢰 상품 선택기를 '의뢰 가능한 품목만 깔끔한 3열 카드'로 개편
+		vbox = {
+			name = "interaction_window_trade_good_list_picker"
+			visible = "[CharacterInteractionConfirmationWindow.UsesTradeGoodTypeTarget]"
+			layoutpolicy_horizontal = expanding
+			ignoreinvisible = yes
+			spacing = 8
+
+			# 심플 3열 카드 그리드 (의뢰 가능한 품목만 표시)
+			scrollbox = {
+				visible = "[TradeMarketInteractionWindow.HasSelectedTradeMarket]"
+				datacontext = "[TradeMarketInteractionWindow.GetSelectedTradeMarket]"
+				layoutpolicy_horizontal = expanding
+				autoresizescrollarea = yes
+				maximumsize = { -1 320 }
+
+				blockoverride "scrollbox_content" {
+					flowcontainer = {
+						datamodel = "[CharacterInteractionConfirmationWindow.GetTradeGoodTypes]"
+						layoutpolicy_horizontal = expanding
+						ignoreinvisible = yes
+						wrap_count = 3
+						spacing = 6
+						margin = { 6 4 }
+
+						item = {
+							button_standard = {
+								visible = "[TradeMarketInteractionWindow.CanPickTradeGoodType( TradeGoodType.Self )]"
+								size = { 206 36 }
+								onclick = "[CharacterInteractionConfirmationWindow.SetSelectedTradeGoodType( TradeGoodType.Self )]"
+								down = "[ObjectsEqual( CharacterInteractionConfirmationWindow.GetSelectedTradeGoodType, TradeGoodType.Self )]"
+
+								tooltipwidget = {
+									sui_market_good_tooltip = {}
+								}
+
+								# 내 봉역에서 부족한 품목(개별 또는 소속 카테고리)일 때 크림슨 외곽선 강조
+								widget = {
+									size = { 100% 100% }
+									alwaystransparent = yes
+									datamodel = "[TradeMarket.GetRealmNeeds]"
+
+									item = {
+										widget = {
+											visible = "[Or( And( Not( TradeMarketRealmNeed.IsCategory ), ObjectsEqual( TradeMarketRealmNeed.GetTradeGoodType, TradeGoodType.Self ) ), And( TradeMarketRealmNeed.IsCategory, ObjectsEqual( TradeMarketRealmNeed.GetCategory, TradeGoodType.GetNeedCategory ) ) )]"
+											size = { 100% 100% }
+											alwaystransparent = yes
+
+											background = {
+												using = Background_Frame
+												color = { 0.95 0.80 0.35 1.0 }
+											}
+
+											state = {
+												name = sui_req_pulse_down
+												next = sui_req_pulse_up
+												trigger_on_create = yes
+												alpha = 0.3
+												duration = 0.65
+												using = Animation_Curve_Default
+											}
+
+											state = {
+												name = sui_req_pulse_up
+												next = sui_req_pulse_down
+												alpha = 1.0
+												duration = 0.65
+												using = Animation_Curve_Default
+											}
+										}
+									}
+								}
+
+								hbox = {
+									size = { 100% 100% }
+									margin = { 8 2 }
+									spacing = 6
+
+									icon = {
+										size = { 24 24 }
+										texture = "[TradeGoodType.GetIcon]"
+									}
+
+									text_single = {
+										text = "[TradeGoodType.GetNameNoTooltip]"
+										default_format = "#high"
+										align = nobaseline
+									}
+
+									expand = {}
+
+									text_single = {
+										visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), And( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) ) )]"
+										raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+										align = nobaseline
+									}
+
+									text_single = {
+										visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), And( Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) ) )]"
+										raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+										align = nobaseline
+									}
+
+									icon = {
+										visible = "[Or( Not( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ) ), LessThan_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) )]"
+										size = { 18 18 }
+										texture = "gfx/interface/icons/symbols/icon_check.dds"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			hbox = {
+				visible = "[Not( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType )]"
+				margin = { 10 6 }
+
+				text_single = {
+					text = "CHARACTER_INTERACTION_NO_TARGET_SELECTED"
+					using = Font_Size_Medium
+					align = nobaseline
+				}
+			}
+
+			hbox = {
+				visible = "[CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType]"
+				datacontext = "[CharacterInteractionConfirmationWindow.GetSelectedTradeGoodType]"
+				spacing = 6
+				margin = { 10 6 }
+
+				icon = {
+					size = { 24 24 }
+					texture = "[TradeGoodType.GetIcon]"
+				}
+
+				text_single = {
+					text = "[TradeGoodType.GetName]"
+					using = Font_Size_Medium
+					align = nobaseline
+				}
+			}
+		}
+		# [SUI] END
+
+		spacer = {
+			visible = "[CharacterInteractionConfirmationWindow.UsesTradeGoodTypeTarget]"
+			size = { 0 10 }
+		}
+
+		hbox = {
+			name = "monopoly_toggles"
+			visible = "[TradeMarketInteractionWindow.IsMonopolyInteraction]"
+			layoutpolicy_horizontal = expanding
+			margin = { 20 5 }
+
+			button_checkbox_label = {
+				onclick = "[TradeMarketInteractionWindow.ToggleCompleteMonopoly]"
+				tooltip = "REQUEST_MONOPOLY_COMPLETE_TOGGLE_TOOLTIP"
+				blockoverride "checkbox"
+				{
+					checked = "[TradeMarketInteractionWindow.IsCompleteMonopoly]"
+				}
+				blockoverride "text"
+				{
+					text = "REQUEST_MONOPOLY_COMPLETE_LABEL"
+				}
+			}
+
+			button_checkbox_label = {
+				onclick = "[TradeMarketInteractionWindow.ToggleExploitativeMonopoly]"
+				tooltip = "REQUEST_MONOPOLY_EXPLOITATIVE_TOGGLE_TOOLTIP"
+				blockoverride "checkbox"
+				{
+					checked = "[TradeMarketInteractionWindow.IsExploitativeMonopoly]"
+				}
+				blockoverride "text"
+				{
+					text = "REQUEST_MONOPOLY_EXPLOITATIVE_LABEL"
+				}
+			}
+		}
+
+		hbox = {
+			name = "toll_level_selection"
+			visible = "[Or(TradeMarketInteractionWindow.IsRequestTollInteraction, TradeMarketInteractionWindow.IsGrantTollInteraction)]"
+			layoutpolicy_horizontal = expanding
+
+
+			button_select_arrow = {
+				size = { 36 36 }
+				mirror = horizontal
+				enabled = "[GreaterThan_int32( TradeMarketInteractionWindow.GetSelectedTollIndex, '(int32)0' )]"
+				onclick = "[TradeMarketInteractionWindow.SetSelectedTollIndex( Subtract_int32( TradeMarketInteractionWindow.GetSelectedTollIndex, '(int32)1' ) )]"
+			}
+
+			vbox = {
+				spacing = 10
+				vbox = {
+					ignoreinvisible = yes
+					datamodel = "[GetAllTollLevels]"
+					item = {
+						vbox = {
+							visible = "[EqualTo_int32( TollLevel.GetDatabaseIndex, TradeMarketInteractionWindow.GetSelectedTollIndex )]"
+							toll_level_icon = {
+								size = { 42 42 }
+							}
+						}
+					}
+				}
+
+				hbox = {
+					minimumsize = { 80 0 }
+					ignoreinvisible = yes
+					datamodel = "[GetAllTollLevels]"
+					layoutpolicy_horizontal = expanding
+
+					item = {
+						text_single = {
+							visible = "[EqualTo_int32( TollLevel.GetDatabaseIndex, TradeMarketInteractionWindow.GetSelectedTollIndex )]"
+							layoutpolicy_horizontal = expanding
+							text = "[TollLevel.GetName]"
+							align = center|nobaseline
+						}
+					}
+				}
+			}
+
+			button_select_arrow = {
+				size = { 40 40 }
+				enabled = "[LessThan_int32( TradeMarketInteractionWindow.GetSelectedTollIndex, Subtract_int32( GetDataModelSize( GetAllTollLevels ), '(int32)1' ) )]"
+				onclick = "[TradeMarketInteractionWindow.SetSelectedTollIndex( Add_int32( TradeMarketInteractionWindow.GetSelectedTollIndex, '(int32)1' ) )]"
+			}
+
+		}
+
+		vbox = {
+			name = "trade_category_area"
+			visible = "[CharacterInteractionConfirmationWindow.UsesTradeGoodCategoryTypeTarget]"
+			layoutpolicy_horizontal = expanding
+			minimumsize = { 0 100 }
+			ignoreinvisible = yes
+
+			vbox_trade_category_list_picker = {
+				visible = "[And( CharacterInteractionConfirmationWindow.UsesTradeGoodCategoryTypeTarget, Not( TradeMarketInteractionWindow.IsCompleteMonopoly ) )]"
+			}
+
+			text_multi = {
+				name = "complete_monopoly_info"
+				visible = "[TradeMarketInteractionWindow.IsCompleteMonopoly]"
+				layoutpolicy_horizontal = expanding
+				autoresize = yes
+				max_width = 400
+				margin = { 5 0 }
+				align = center
+				default_format = "#weak"
+				text = "REQUEST_MONOPOLY_COMPLETE_MARKET_WIDE_INFO"
+			}
+		}
+
+		# Options
+		vbox_interaction_options = {
+			#widgetid = "interaction_options"
+			visible = "[CharacterInteractionConfirmationWindow.HasOptions]"
+		}
+
+		# Grant effects — fixed taller box (no preferred; that was collapsing the text)
+		vbox_character_interaction_effects_simple = {
+			visible = "[TradeMarketInteractionWindow.IsGrantTollInteraction]"
+			datacontext = "[CharacterInteractionConfirmationWindow.GetEffectsDescription]"
+			layoutpolicy_horizontal = expanding
+
+			blockoverride "interaction_effects_scrollbox_layout"
+			{
+				layoutpolicy_vertical = fixed
+			}
+
+			blockoverride "interaction_effects_scrollbox_size"
+			{
+				size = { 0 220 }
+			}
+
+			blockoverride "effect_descriptions_visibility"
+			{
+				visible = "[TradeMarketInteractionWindow.IsTollLevelInteractionValid]"
+			}
+		}
+
+		# Request effects
+		vbox_character_interaction_effects_simple = {
+			visible = "[TradeMarketInteractionWindow.IsRequestTollInteraction]"
+			datacontext = "[CharacterInteractionConfirmationWindow.GetEffectsDescription]"
+			layoutpolicy_horizontal = expanding
+
+			blockoverride "interaction_effects_scrollbox_layout"
+			{
+				layoutpolicy_vertical = fixed
+			}
+
+			blockoverride "interaction_effects_scrollbox_size"
+			{
+				size = { 0 120 }
+			}
+
+			blockoverride "effect_descriptions_visibility"
+			{
+				visible = "[TradeMarketInteractionWindow.IsTollLevelInteractionValid]"
+			}
+		}
+
+		# Monopoly / trade good / revoke effects
+		vbox_character_interaction_effects_simple = {
+			visible = "[Not( Or( TradeMarketInteractionWindow.IsGrantTollInteraction, TradeMarketInteractionWindow.IsRequestTollInteraction ) )]"
+			datacontext = "[CharacterInteractionConfirmationWindow.GetEffectsDescription]"
+			layoutpolicy_horizontal = expanding
+
+			blockoverride "interaction_effects_scrollbox_size"
+			{
+				size = { 0 200 }
+			}
+
+			blockoverride "effect_descriptions_visibility"
+			{
+				visible = "[Or5( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType, CharacterInteractionConfirmationWindow.HasSelectedTradeGoodCategoryType, TradeMarketInteractionWindow.IsCompleteMonopoly, TradeMarketInteractionWindow.IsTollLevelInteractionValid, IsRevokeTollInteraction )]"
+			}
+
+			blockoverride "extra_content"
+			{
+				text_multi = {
+					name = "no_trade_good_selected_info"
+					visible = "[And( CharacterInteractionConfirmationWindow.UsesTradeGoodTypeTarget, Not( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType ) )]"
+					layoutpolicy_horizontal = expanding
+					autoresize = yes
+					max_width = 400
+					margin = { 5 60 }
+					align = center
+					default_format = "#weak"
+					text = "CHARACTER_INTERACTION_SELECT_TRADE_GOOD_INFO"
+				}
+
+				text_multi = {
+					name = "no_trade_category_selected_info"
+					visible = "[And3( CharacterInteractionConfirmationWindow.UsesTradeGoodCategoryTypeTarget, Not( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodCategoryType ), Not( TradeMarketInteractionWindow.IsCompleteMonopoly ) )]"
+					layoutpolicy_horizontal = expanding
+					autoresize = yes
+					max_width = 400
+					margin = { 5 60 }
+					align = center
+					default_format = "#weak"
+					text = "CHARACTER_INTERACTION_SELECT_TRADE_CATEGORY_INFO"
+				}
+			}
+		}
+
+		spacer = {
+			visible = "[Or( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType, CharacterInteractionConfirmationWindow.HasSelectedTradeGoodCategoryType )]"
+			size = { 0 10 }
+		}
+
+
+		hbox_character_interaction_acceptance = {
+			visible = "[CharacterInteractionConfirmationWindow.ShouldShowAnswer]"
+			layoutpolicy_horizontal = expanding
+
+		}
+
+		text_multi_on_decline_summary = {}
+
+		spacer = {
+			visible = "[Not( Or4( CharacterInteractionConfirmationWindow.HasSelectedTradeGoodType, CharacterInteractionConfirmationWindow.HasSelectedTradeGoodCategoryType, TradeMarketInteractionWindow.IsCompleteMonopoly, TradeMarketInteractionWindow.IsTollLevelInteractionValid ) )]"
+			size = { 0 10 }
+		}
+
+		vbox = {
+			spacing = 5
+			hbox = {
+				visible = "[CharacterInteractionConfirmationWindow.HasCost]"
+				spacing = 5
+
+				tooltip = "[CharacterInteractionConfirmationWindow.GetCostTooltip]"
+
+				text_single = {
+					text = "INTERACTION_COST"
+				}
+
+				text_single = {
+					text = "[CharacterInteractionConfirmationWindow.GetCostDescription]"
+				}
+			}
+			button_primary = {
+				name = "send_offer_button"
+				size = { 400 42 }
+				text = "[CharacterInteractionConfirmationWindow.GetSendName]"
+
+				onclick = "[TradeMarketInteractionWindow.Send]"
+				enabled = "[TradeMarketInteractionWindow.CanSendOffer]"
+				tooltip = "[TradeMarketInteractionWindow.GetCanSendDescription]"
+			}
+		}
+	}
+}
