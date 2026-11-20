@@ -748,17 +748,6 @@ window = {
 											alpha = 0.75
 										}
 										background = {
-											visible = "[GreaterThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)25' )]"
-											using = Background_Frame
-											color = { 0.3 0.8 0.4 0.7 }
-										}
-										background = {
-											visible = "[LessThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)-25' )]"
-											using = Background_Frame
-											color = { 0.85 0.35 0.3 0.7 }
-										}
-										background = {
-											visible = "[And( GreaterThan_int32( County.GetCurrentOpinion, '(int32)-25' ), LessThan_int32( County.GetCurrentOpinion, '(int32)25' ) )]"
 											using = Background_Frame
 											color = { 0.65 0.65 0.65 0.45 }
 										}
@@ -816,17 +805,6 @@ window = {
 											alpha = 0.75
 										}
 										background = {
-											visible = "[GreaterThan_int32( County.GetCountyControlLevel, '(int32)10' )]"
-											using = Background_Frame
-											color = { 0.3 0.8 0.4 0.7 }
-										}
-										background = {
-											visible = "[LessThan_int32( County.GetCountyControlLevel, '(int32)10' )]"
-											using = Background_Frame
-											color = { 0.85 0.35 0.3 0.7 }
-										}
-										background = {
-											visible = "[EqualTo_int32( County.GetCountyControlLevel, '(int32)10' )]"
 											using = Background_Frame
 											color = { 0.65 0.65 0.65 0.45 }
 										}
@@ -883,17 +861,6 @@ window = {
 											alpha = 0.75
 										}
 										background = {
-											visible = "[GreaterThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
-											using = Background_Frame
-											color = { 0.3 0.8 0.4 0.7 }
-										}
-										background = {
-											visible = "[LessThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
-											using = Background_Frame
-											color = { 0.85 0.35 0.3 0.7 }
-										}
-										background = {
-											visible = "[EqualTo_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
 											using = Background_Frame
 											color = { 0.65 0.65 0.65 0.45 }
 										}
@@ -942,7 +909,7 @@ window = {
 
 										background = {
 											using = Background_Frame
-											color = { 0.3 0.8 0.4 0.7 }
+											color = { 0.42 0.72 0.46 0.6 }
 										}
 
 										tooltipwidget = {
@@ -1029,7 +996,7 @@ window = {
 
 										background = {
 											using = Background_Frame
-											color = { 0.85 0.35 0.3 0.7 }
+											color = { 0.80 0.36 0.32 0.65 }
 										}
 
 										tooltipwidget = {
@@ -2579,7 +2546,7 @@ types CountyViewTypes {
 						button_icon_can_upgrade = {
 							visible = "[GUIDistrictItem.HasImmediatelyUpgradableBuilding]"
 							tooltip = "HOLDING_DISTRICT_CAN_UPGRADE_BUILDING_NOW"
-							parentanchor = top|right
+							parentanchor = top|left
 						}
 
 						widget_icon_can_build  = {
@@ -3155,13 +3122,21 @@ types CountyViewTypes {
 			}
 		}
 
-		button_icon = {
+		# [SUI] START - 신규 건설 가능 아이콘을 녹색 망치로 통일
+		icon = {
 			using = Animation_Pulse_Alpha
 			parentanchor = center
-			size = { 20 20 }
+			size = { 18 18 }
 			alwaystransparent = yes
-			texture = "gfx/interface/icons/flat_icons/hammer.dds"
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.42 0.72 0.46 1.0 }
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				blend_mode = alphamultiply
+			}
 		}
+		# [SUI] END
 	}
 
 	type button_icon_can_upgrade = widget {
@@ -3178,14 +3153,21 @@ types CountyViewTypes {
 			}
 		}
 
-		button_icon = {
+		# [SUI] START - 업그레이드 가능 아이콘을 망치(flat_icons)와 비율·색상이 일치하는 녹색 상향 화살표로 통일
+		icon = {
 			using = Animation_Pulse_Alpha
 			parentanchor = center
-			position = { -1 -1 }
-			size = { 20 20 }
+			size = { 18 18 }
 			alwaystransparent = yes
-			texture = "gfx/interface/icons/flat_icons/hammer.dds"
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.42 0.72 0.46 1.0 }
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/arrow_up.dds"
+				blend_mode = alphamultiply
+			}
 		}
+		# [SUI] END
 	}
 
 	### New District Construction ###
@@ -3221,7 +3203,7 @@ types CountyViewTypes {
 
 			item = {
 				icon_district_building_slot = {
-					color = { 0.95 0.78 0.30 1.0 }
+					color = { 0.86 0.72 0.36 1.0 }
 				}
 			}
 		}
@@ -3308,15 +3290,23 @@ types CountyViewTypes {
 
 		block "district_item_icon_ghost" {}
 
-		button_icon = {
+		# [SUI] START - 빈 땅 신규 건설 아이콘도 녹색 망치로 통일
+		icon = {
 			name = "build_new_icon"
 			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.IsDistrictButtonEnabled )]"
 			size = { 28 28 }
 			parentanchor = center
-			texture = "gfx/interface/icons/flat_icons/hammer.dds"
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.42 0.72 0.46 1.0 }
 			alwaystransparent = yes
 			using = Animation_Pulse_Alpha
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				blend_mode = alphamultiply
+			}
 		}
+		# [SUI] END
 
 		warning_icon = {
 			name = "reduced_by_fixable_situation"
@@ -3326,10 +3316,92 @@ types CountyViewTypes {
 			size = { 28 28 }
 		}
 
+		# [SUI] START - 건설 중일 때 원형 슬롯과 프로그레스바 겹침 방지 + 하늘색 외곽선 + 망치질 애니메이션
+		widget = {
+			visible = "[GUIDistrictItem.IsConstructing]"
+			size = { 100% 100% }
+			alwaystransparent = yes
+
+			background = {
+				using = Background_Frame
+				color = { 0.35 0.78 1.0 0.9 }
+			}
+
+			icon = {
+				parentanchor = center
+				size = { 26 26 }
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				color = { 0.45 0.85 1.0 1.0 }
+				alwaystransparent = yes
+
+				state = {
+					name = _show
+					next = sui_hammer_strike
+					position = { 2 -3 }
+					duration = 0.0
+				}
+
+				state = {
+					name = sui_hammer_strike
+					next = sui_hammer_lift
+					position = { -3 3 }
+					duration = 0.12
+					using = Animation_Curve_Default
+				}
+
+				state = {
+					name = sui_hammer_lift
+					next = sui_hammer_strike
+					position = { 2 -3 }
+					duration = 0.35
+					delay = 0.12
+					using = Animation_Curve_Default
+				}
+			}
+		}
+
+		# [SUI] START - 건설 중(지구 또는 내부 건물)일 때 원형 슬롯 숨김 + 하늘색 외곽선 펄스 강조
+		widget = {
+			visible = "[Or( GUIDistrictItem.IsConstructing, GUIDistrictItem.IsConstructingBuilding )]"
+			size = { 100% 100% }
+			alwaystransparent = yes
+
+			background = {
+				using = Background_Frame
+				color = { 0.86 0.72 0.36 0.9 }
+			}
+
+			state = {
+				name = sui_build_pulse_down
+				next = sui_build_pulse_up
+				trigger_on_create = yes
+				alpha = 0.4
+				duration = 0.8
+				using = Animation_Curve_Default
+			}
+
+			state = {
+				name = sui_build_pulse_up
+				next = sui_build_pulse_down
+				alpha = 1.0
+				duration = 0.8
+				using = Animation_Curve_Default
+			}
+		}
+
 		widget_small_building_slots = {
-			visible = "[GUIDistrictItem.HasDistrict]"
+			visible = "[And( GUIDistrictItem.HasDistrict, Not( Or( GUIDistrictItem.IsConstructing, GUIDistrictItem.IsConstructingBuilding ) ) )]"
 			parentanchor = bottom|hcenter
 			position = { 0 -5 }
+		}
+
+		progressbar_standard = {
+			visible = "[And( Not( GUIDistrictItem.IsConstructing ), GUIDistrictItem.IsConstructingBuilding )]"
+			parentanchor = bottom|hcenter
+			alwaystransparent = yes
+			size = { 100% 10 }
+			value = "[Holding.GetConstructionProgress]"
+			direction = horizontal
 		}
 
 		progressbar_standard = {
@@ -3342,11 +3414,12 @@ types CountyViewTypes {
 			value = "[GUIDistrictItem.GetConstructingProgress]"
 			direction = horizontal
 		}
+		# [SUI] END
 
 		button_icon_can_upgrade = {
 			visible = "[GUIDistrictItem.HasImmediatelyUpgradableBuilding]"
 			tooltip = "HOLDING_DISTRICT_CAN_UPGRADE_BUILDING_NOW"
-			parentanchor = top|right
+			parentanchor = top|left
 		}
 
 		widget_icon_can_build  = {
@@ -3495,10 +3568,32 @@ types CountyViewTypes {
 				on_start = "[PdxGuiWidget.FindChild('drag_indicator').TriggerAnimation('hover_leave')]"
 			}
 
-			icon_drag_indicator = {
+			# [SUI] START - 드래그 순서 변경 아이콘을 중앙 상하좌우 이동(OpenWith) 아이콘으로 교체
+			widget = {
 				name = "drag_indicator"
 				visible = "[And( Not( GUIDistrictItem.IsDistrictRuined ), HoldingView.GetTitle.GetHolder.IsLocalPlayer )]"
+				parentanchor = center
+				size = { 32 32 }
+				alwaystransparent = yes
 				alpha = 0
+
+				background = {
+					using = Background_Area_Dark
+					alpha = 0.75
+
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_circle_hard.dds"
+						blend_mode = alphamultiply
+					}
+				}
+
+				icon = {
+					parentanchor = center
+					size = { 22 22 }
+					texture = "gfx/interface/icons/sui_drag_move.dds"
+					color = { 0.86 0.72 0.36 1.0 }
+					alwaystransparent = yes
+				}
 
 				state = {
 					name = hover_enter
@@ -3514,6 +3609,7 @@ types CountyViewTypes {
 					using = Animation_Curve_Default
 				}
 			}
+			# [SUI] END
 		}
 
 		button_county_district_slot = {
@@ -3528,15 +3624,23 @@ types CountyViewTypes {
 			using = Background_Area
 		}
 
-		button_icon = {
+		# [SUI] START - 빈 땅 신규 건설 아이콘도 녹색 망치로 통일
+		icon = {
 			name = "build_new_icon"
 			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.IsDistrictButtonEnabled )]"
 			size = { 28 28 }
 			parentanchor = center
-			texture = "gfx/interface/icons/flat_icons/hammer.dds"
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.42 0.72 0.46 1.0 }
 			alwaystransparent = yes
 			using = Animation_Pulse_Alpha
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				blend_mode = alphamultiply
+			}
 		}
+		# [SUI] END
 
 		warning_icon = {
 			name = "reduced_by_fixable_situation"
@@ -3546,11 +3650,41 @@ types CountyViewTypes {
 			size = { 28 28 }
 		}
 
+		# [SUI] START - 건설 중(지구 또는 내부 건물)일 때 원형 슬롯 숨김 + 하늘색 외곽선 펄스 강조
+		widget = {
+			visible = "[Or( GUIDistrictItem.IsConstructing, GUIDistrictItem.IsConstructingBuilding )]"
+			size = { 100% 100% }
+			alwaystransparent = yes
+
+			background = {
+				using = Background_Frame
+				color = { 0.86 0.72 0.36 0.9 }
+			}
+
+			state = {
+				name = sui_build_pulse_down
+				next = sui_build_pulse_up
+				trigger_on_create = yes
+				alpha = 0.4
+				duration = 0.8
+				using = Animation_Curve_Default
+			}
+
+			state = {
+				name = sui_build_pulse_up
+				next = sui_build_pulse_down
+				alpha = 1.0
+				duration = 0.8
+				using = Animation_Curve_Default
+			}
+		}
+
 		widget_small_building_slots = {
-			visible = "[GUIDistrictItem.HasDistrict]"
+			visible = "[And( GUIDistrictItem.HasDistrict, Not( Or( GUIDistrictItem.IsConstructing, GUIDistrictItem.IsConstructingBuilding ) ) )]"
 			parentanchor = bottom|hcenter
 			position = { 0 -5 }
 		}
+		# [SUI] END
 
 		progressbar_standard = {
 			#name = "construct_progressbar"
@@ -3588,7 +3722,7 @@ types CountyViewTypes {
 		button_icon_can_upgrade = {
 			visible = "[GUIDistrictItem.HasImmediatelyUpgradableBuilding]"
 			tooltip = "HOLDING_DISTRICT_CAN_UPGRADE_BUILDING_NOW"
-			parentanchor = top|right
+			parentanchor = top|left
 		}
 
 		widget_icon_can_build  = {
@@ -3826,16 +3960,39 @@ types CountyViewTypes {
 				visible = "[And3( Not( GUIBuildingItem.HasBuilding ), Not( GUIBuildingItem.IsInQueue ), Not( GUIBuildingItem.IsConstructing ))]"
 				using = tooltip_ne
 
-				button_icon = {
+				# [SUI] START - 부속 건물 빈 슬롯: 건설 가능=세이지 그린 망치, 돈/조건 부족=흐린 회색 망치 (외곽선은 기본 프레임 통일)
+				icon = {
 					name = "build_new_icon"
 					visible = "[GUIBuildingItem.CanConstructAnyBuildingImmediately]"
 					parentanchor = center
 					size = { 28 28 }
-					alpha = 0.7
-					texture = "gfx/interface/icons/flat_icons/hammer.dds"
+					alpha = 0.85
+					texture = "gfx/interface/colors/white.dds"
+					color = { 0.42 0.72 0.46 1.0 }
 					alwaystransparent = yes
 					using = Animation_Pulse_Alpha
+
+					modify_texture = {
+						texture = "gfx/interface/icons/flat_icons/hammer.dds"
+						blend_mode = alphamultiply
+					}
 				}
+
+				icon = {
+					visible = "[Not( GUIBuildingItem.CanConstructAnyBuildingImmediately )]"
+					parentanchor = center
+					size = { 26 26 }
+					alpha = 0.4
+					texture = "gfx/interface/colors/white.dds"
+					color = { 0.55 0.55 0.58 1.0 }
+					alwaystransparent = yes
+
+					modify_texture = {
+						texture = "gfx/interface/icons/flat_icons/hammer.dds"
+						blend_mode = alphamultiply
+					}
+				}
+				# [SUI] END
 			}
 
 			button_standard = {
@@ -4083,11 +4240,40 @@ types CountyViewTypes {
 				position = { 0 -1 }
 				size = { 18 18 }
 			}
-			texture = "gfx/interface/icons/flat_icons/hammer.dds"
-			using = Master_Button_Modify_Texture
-			blockoverride "master_color_frame" {
-				frame = 7
+			# [SUI] START - 건설 중 모던 원형 로딩 스피너 (360도 연속 회전, 하늘색)
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.86 0.72 0.36 1.0 }
+
+			modify_texture = {
+				name = "sui_spinner_rot"
+				texture = "gfx/interface/icons/sui_loading_spinner.dds"
+				blend_mode = alphamultiply
+				rotate_uv = 0
 			}
+
+			state = {
+				name = sui_spin_start
+				next = sui_spin_loop
+				trigger_on_create = yes
+				duration = 0.0
+
+				modify_texture = {
+					name = "sui_spinner_rot"
+					rotate_uv = 0
+				}
+			}
+
+			state = {
+				name = sui_spin_loop
+				next = sui_spin_start
+				duration = 1.2
+
+				modify_texture = {
+					name = "sui_spinner_rot"
+					rotate_uv = -360
+				}
+			}
+			# [SUI] END
 		}
 
 		block "visible_data" {
@@ -4135,10 +4321,32 @@ types CountyViewTypes {
 				texture = "[GUIBuildingItem.GetCurrentOrConstrucingBuilding.GetTypeIcon]"
 			}
 
-			icon_drag_indicator = {
+			# [SUI] START - 드래그 순서 변경 아이콘을 중앙 상하좌우 이동(OpenWith) 아이콘으로 교체
+			widget = {
 				name = "drag_indicator"
 				visible = "[And( Not( District.IsRuined ), HoldingView.GetTitle.GetHolder.IsLocalPlayer )]"
+				parentanchor = center
+				size = { 32 32 }
+				alwaystransparent = yes
 				alpha = 0
+
+				background = {
+					using = Background_Area_Dark
+					alpha = 0.75
+
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_circle_hard.dds"
+						blend_mode = alphamultiply
+					}
+				}
+
+				icon = {
+					parentanchor = center
+					size = { 22 22 }
+					texture = "gfx/interface/icons/sui_drag_move.dds"
+					color = { 0.86 0.72 0.36 1.0 }
+					alwaystransparent = yes
+				}
 
 				state = {
 					name = hover_enter
@@ -4154,6 +4362,7 @@ types CountyViewTypes {
 					using = Animation_Curve_Default
 				}
 			}
+			# [SUI] END
 
 			icon_building_level = {
 				parentanchor = top|left
@@ -7135,13 +7344,13 @@ types CountyViewTypes {
 										background = {
 											visible = "[Not( GUIBuildingNeedItem.IsDimmed )]"
 											using = Background_Frame
-											color = { 0.9 0.75 0.25 0.75 }
+											color = { 0.86 0.72 0.36 0.65 }
 										}
 
 										background = {
 											visible = "[GUIBuildingNeedItem.IsDimmed]"
 											using = Background_Frame
-											color = { 0.85 0.35 0.3 0.7 }
+											color = { 0.80 0.36 0.32 0.65 }
 										}
 
 										icon = {
@@ -7190,7 +7399,7 @@ types CountyViewTypes {
 
 										background = {
 											using = Background_Frame
-											color = { 0.3 0.8 0.4 0.7 }
+											color = { 0.42 0.72 0.46 0.6 }
 										}
 
 										icon = {
@@ -7281,19 +7490,19 @@ types CountyViewTypes {
 												background = {
 													visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
 													using = Background_Frame
-													color = { 0.3 0.8 0.4 0.7 }
+													color = { 0.42 0.72 0.46 0.6 }
 												}
 
 												background = {
 													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 													using = Background_Frame
-													color = { 0.9 0.75 0.25 0.75 }
+													color = { 0.86 0.72 0.36 0.65 }
 												}
 
 												background = {
 													visible = "[GUIBuildingNeedItem.IsDimmed]"
 													using = Background_Frame
-													color = { 0.85 0.35 0.3 0.7 }
+													color = { 0.80 0.36 0.32 0.65 }
 												}
 
 												tooltipwidget = {
@@ -7337,19 +7546,19 @@ types CountyViewTypes {
 												background = {
 													visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
 													using = Background_Frame
-													color = { 0.3 0.8 0.4 0.7 }
+													color = { 0.42 0.72 0.46 0.6 }
 												}
 
 												background = {
 													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 													using = Background_Frame
-													color = { 0.9 0.75 0.25 0.75 }
+													color = { 0.86 0.72 0.36 0.65 }
 												}
 
 												background = {
 													visible = "[GUIBuildingNeedItem.IsDimmed]"
 													using = Background_Frame
-													color = { 0.85 0.35 0.3 0.7 }
+													color = { 0.80 0.36 0.32 0.65 }
 												}
 
 												tooltipwidget = {
@@ -7389,7 +7598,7 @@ types CountyViewTypes {
 												text_single = {
 													visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 													raw_text = "#bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
-													fonttintcolor = { 0.95 0.80 0.25 1.0 }
+													fonttintcolor = { 0.86 0.72 0.36 1.0 }
 													fontsize = 20
 													margin_right = 6
 													align = nobaseline
@@ -8707,31 +8916,29 @@ types CountyViewTypes {
 							}
 						}
 
-						# [SUI] START - '0/2' 숫자 대신 남은 빈 건물 슬롯도 동일한 건설 가능(망치) 버튼으로 표시 (클릭 시 1번째 빈 칸부터 자동 건설)
+						# [SUI] START - 추가 빈 슬롯 개수를 아이콘 없는 빈 사각형 슬롯(60x60)으로 표시 (고스트 버그 없음)
 						vbox = {
 							layoutpolicy_vertical = expanding
 							margin_top = 16
-							margin_left = 4
 							visible = "[GreaterThan_int32( Subtract_int32( HoldingView.EstimateTotalNumAvailableBuildSlots, HoldingView.CalcNumOccupiedBuildSlots ), '(int32)1' )]"
 
 							flowcontainer = {
-								datamodel = "[RepeatedItem( Subtract_int32( Subtract_int32( HoldingView.EstimateTotalNumAvailableBuildSlots, HoldingView.CalcNumOccupiedBuildSlots ), '(int32)1' ) )]"
 								direction = horizontal
 								spacing = 4
+								datamodel = "[RepeatedItem( Subtract_int32( Subtract_int32( HoldingView.EstimateTotalNumAvailableBuildSlots, HoldingView.CalcNumOccupiedBuildSlots ), '(int32)1' ) )]"
 
 								item = {
 									widget = {
 										size = { 60 60 }
+										alpha = 0.85
 
-										widget = {
-											size = { 100% 100% }
-											datamodel = "[HoldingView.GetNonPrimaryBuildingItems]"
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.8
+										}
 
-											item = {
-												widget_building_item_draggable_slot = {
-													visible = "[Not( GUIBuildingItem.HasBuilding )]"
-												}
-											}
+										background = {
+											using = Background_Frame
 										}
 									}
 								}
@@ -9113,13 +9320,13 @@ types CountyViewTypes {
 															background = {
 																visible = "[Not( GUIBuildingNeedItem.IsDimmed )]"
 																using = Background_Frame
-																color = { 0.9 0.75 0.25 0.75 }
+																color = { 0.86 0.72 0.36 0.65 }
 															}
 
 															background = {
 																visible = "[GUIBuildingNeedItem.IsDimmed]"
 																using = Background_Frame
-																color = { 0.85 0.35 0.3 0.7 }
+																color = { 0.80 0.36 0.32 0.65 }
 															}
 
 															icon = {
@@ -9168,7 +9375,7 @@ types CountyViewTypes {
 
 															background = {
 																using = Background_Frame
-																color = { 0.3 0.8 0.4 0.7 }
+																color = { 0.42 0.72 0.46 0.6 }
 															}
 
 															icon = {
@@ -9268,19 +9475,19 @@ types CountyViewTypes {
 																			background = {
 																				visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
 																				using = Background_Frame
-																				color = { 0.3 0.8 0.4 0.7 }
+																				color = { 0.42 0.72 0.46 0.6 }
 																			}
 
 																			background = {
 																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 																				using = Background_Frame
-																				color = { 0.9 0.75 0.25 0.75 }
+																				color = { 0.86 0.72 0.36 0.65 }
 																			}
 
 																			background = {
 																				visible = "[GUIBuildingNeedItem.IsDimmed]"
 																				using = Background_Frame
-																				color = { 0.85 0.35 0.3 0.7 }
+																				color = { 0.80 0.36 0.32 0.65 }
 																			}
 
 																			tooltipwidget = {
@@ -9324,19 +9531,19 @@ types CountyViewTypes {
 																			background = {
 																				visible = "[GUIBuildingNeedItem.IsCompletelyFilled]"
 																				using = Background_Frame
-																				color = { 0.3 0.8 0.4 0.7 }
+																				color = { 0.42 0.72 0.46 0.6 }
 																			}
 
 																			background = {
 																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 																				using = Background_Frame
-																				color = { 0.9 0.75 0.25 0.75 }
+																				color = { 0.86 0.72 0.36 0.65 }
 																			}
 
 																			background = {
 																				visible = "[GUIBuildingNeedItem.IsDimmed]"
 																				using = Background_Frame
-																				color = { 0.85 0.35 0.3 0.7 }
+																				color = { 0.80 0.36 0.32 0.65 }
 																			}
 
 																			tooltipwidget = {
@@ -9376,7 +9583,7 @@ types CountyViewTypes {
 																			text_single = {
 																				visible = "[And( Not( GUIBuildingNeedItem.IsCompletelyFilled ), Not( GUIBuildingNeedItem.IsDimmed ) )]"
 																				raw_text = "#bold ×[FixedPointToInt( Divide_CFixedPoint( GUIBuildingNeedItem.GetCurrentlyConsumedAmount, Divide_CFixedPoint( GUIBuildingNeedItem.GetMaxNeededAmount, IntToFixedPoint( GetDataModelSize( GUIBuildingNeedItem.GetChecklist ) ) ) ) )]#!"
-																				fonttintcolor = { 0.95 0.80 0.25 1.0 }
+																				fonttintcolor = { 0.86 0.72 0.36 1.0 }
 																				fontsize = 20
 																				margin_right = 6
 																				align = nobaseline
