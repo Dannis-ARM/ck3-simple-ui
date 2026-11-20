@@ -27,3 +27,4 @@
  SUI_CKTO_TASK_NEGO_TT:0 "#T Expertise First (Negotiate Deals)#!\nAssigns the best trader for 'Negotiate Deals' to boost Trade Expertise XP growth."
  SUI_CKTO_TASK_CARAVAN:0 "Safety & Efficiency"
  SUI_CKTO_TASK_CARAVAN_TT:0 "#T Safety & Efficiency (Oversee Caravans)#!\nAssigns the best trader for 'Oversee Caravans' to improve route safety and efficiency."
+ SUI_COUNTY_PROD_COUNT:0 "#P ▲[GetDataModelSize( HoldingView.GetProductionItems )]#!"

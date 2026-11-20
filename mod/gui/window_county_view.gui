@@ -733,17 +733,35 @@ window = {
 								expand = {}
 								# [SUI] END
 
+								# [SUI] START - 의견/장악력/번영도도 오른쪽 카드들과 동일한 개별 카드 + 상태별 외곽선(녹/빨/회) 스타일로 통일
 								hbox = {
-									background = {
-										using = Background_Area_Dark
-										alpha = 0.8
-									}
+									spacing = 3
 
 									# POPULAR OPINION INFO
 									widget_top_county_info_vertical = {
 										datacontext = "[HoldingView.AccessCountyBreakdowns]"
 										datacontext = "[CountyDataBreakdowns.AccessMonthlyOpinion( County.Self )]"
 										datacontext = "[HoldingView.AccessPopularOpinionBar]"
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.75
+										}
+										background = {
+											visible = "[GreaterThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)25' )]"
+											using = Background_Frame
+											color = { 0.3 0.8 0.4 0.7 }
+										}
+										background = {
+											visible = "[LessThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)-25' )]"
+											using = Background_Frame
+											color = { 0.85 0.35 0.3 0.7 }
+										}
+										background = {
+											visible = "[And( GreaterThan_int32( County.GetCurrentOpinion, '(int32)-25' ), LessThan_int32( County.GetCurrentOpinion, '(int32)25' ) )]"
+											using = Background_Frame
+											color = { 0.65 0.65 0.65 0.45 }
+										}
 
 										tooltipwidget = {
 											county_opinion_cooltip = {  }
@@ -759,22 +777,32 @@ window = {
 											datacontext = "[HoldingView.AccessPopularOpinionBar]"
 											raw_text = "[ComplexBar.GetCurrentFilledWidth]"
 										}
-										# [SUI] START - 의견 단계 색상: <=-25 빨강(#N), >=25 녹색(#P), 나머지 하얀색
 										blockoverride "card_value" {
 											raw_text = "[Select_CString( LessThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)-25' ), '#N ', Select_CString( GreaterThanOrEqualTo_int32( County.GetCurrentOpinion, '(int32)25' ), '#P ', '' ) )][County.GetCurrentOpinion]#!"
 										}
-										# [SUI] END
 										blockoverride "card_progress" {}
 										blockoverride "card_progress_size" {}
-									}
 
-									vbox = {
-										margin = { 0 10 }
-										layoutpolicy_vertical = expanding
+										# 의견 단계 칩 (-4 ~ +4)
+										widget = {
+											parentanchor = top|left
+											position = { -8 -11 }
+											size = { 28 28 }
+											alwaystransparent = yes
 
-										divider_light = {
-											layoutpolicy_vertical = expanding
-											size = { 4 0 }
+											icon = {
+												size = { 100% 100% }
+												texture = "gfx/interface/window_regency/regency_level_bg.dds"
+												alwaystransparent = yes
+											}
+
+											text_single = {
+												parentanchor = center
+												raw_text = "[Subtract_int32( County.GetOpinionLevel, '(int32)4' )|+=]"
+												fontsize = 14
+												align = nobaseline
+												alwaystransparent = yes
+											}
 										}
 									}
 
@@ -783,6 +811,26 @@ window = {
 										datacontext = "[County.GetCount.GetGovernment]"
 										datacontext = "[CountyDataBreakdowns.AccessControl( County.Self )]"
 
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.75
+										}
+										background = {
+											visible = "[GreaterThan_int32( County.GetCountyControlLevel, '(int32)10' )]"
+											using = Background_Frame
+											color = { 0.3 0.8 0.4 0.7 }
+										}
+										background = {
+											visible = "[LessThan_int32( County.GetCountyControlLevel, '(int32)10' )]"
+											using = Background_Frame
+											color = { 0.85 0.35 0.3 0.7 }
+										}
+										background = {
+											visible = "[EqualTo_int32( County.GetCountyControlLevel, '(int32)10' )]"
+											using = Background_Frame
+											color = { 0.65 0.65 0.65 0.45 }
+										}
+
 										tooltipwidget = {
 											county_control_cooltip = {  }
 										}
@@ -790,29 +838,38 @@ window = {
 										blockoverride "card_icon" {
 											texture = "gfx/interface/icons/control_level_icons.dds"
 											framesize = { 64 64 }
-											### TODO CODE TIT-77138 - FRAME SIZE SHOULD BE DYNAMIC BASED ON THE CONTROL LEVEL
 											frame = "[Select_int32( GreaterThanOrEqualTo_CFixedPoint( County.GetControl, '(CFixedPoint)80' ), '(int32)5', Select_int32( GreaterThanOrEqualTo_CFixedPoint( County.GetControl, '(CFixedPoint)60' ), '(int32)4', Select_int32( GreaterThanOrEqualTo_CFixedPoint( County.GetControl, '(CFixedPoint)40' ), '(int32)3', Select_int32( GreaterThanOrEqualTo_CFixedPoint( County.GetControl, '(CFixedPoint)20' ), '(int32)2', '(int32)1' ) ) ) )]"
 										}
 										blockoverride "card_value" {
 											datacontext = "[HoldingView.AccessCountyControlBar]"
 											raw_text = "[ComplexBar.GetCurrentFilledWidth]"
 										}
-										# [SUI] START - 장악력 단계 색상: <40 빨강(#N), >=75 녹색(#P), 나머지 하얀색
 										blockoverride "card_value" {
-											raw_text = "[Select_CString( LessThan_CFixedPoint( County.GetControl, '(CFixedPoint)40' ), '#N ', Select_CString( GreaterThanOrEqualTo_CFixedPoint( County.GetControl, '(CFixedPoint)75' ), '#P ', '' ) )][County.GetControlLevel]#!"
+											raw_text = "[Select_CString( LessThan_int32( County.GetCountyControlLevel, '(int32)10' ), '#N ', Select_CString( GreaterThan_int32( County.GetCountyControlLevel, '(int32)10' ), '#P ', '' ) )][County.GetControlLevel]#!"
 										}
-										# [SUI] END
 										blockoverride "card_progress" {}
 										blockoverride "card_progress_size" {}
-									}
 
-									vbox = {
-										margin = { 0 10 }
-										layoutpolicy_vertical = expanding
+										# 장악력 단계 칩 (-10 ~ +10, 바닐라 GetCountyControlLevel 기준)
+										widget = {
+											parentanchor = top|left
+											position = { -8 -11 }
+											size = { 28 28 }
+											alwaystransparent = yes
 
-										divider_light = {
-											layoutpolicy_vertical = expanding
-											size = { 4 0 }
+											icon = {
+												size = { 100% 100% }
+												texture = "gfx/interface/window_regency/regency_level_bg.dds"
+												alwaystransparent = yes
+											}
+
+											text_single = {
+												parentanchor = center
+												raw_text = "[Subtract_int32( County.GetCountyControlLevel, '(int32)10' )|+=]"
+												fontsize = 14
+												align = nobaseline
+												alwaystransparent = yes
+											}
 										}
 									}
 
@@ -820,6 +877,26 @@ window = {
 									widget_top_county_info_vertical = {
 										datacontext = "[County.GetCount.GetGovernment]"
 										datacontext = "[CountyDataBreakdowns.AccessProsperityChange( County.Self )]"
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.75
+										}
+										background = {
+											visible = "[GreaterThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
+											using = Background_Frame
+											color = { 0.3 0.8 0.4 0.7 }
+										}
+										background = {
+											visible = "[LessThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
+											using = Background_Frame
+											color = { 0.85 0.35 0.3 0.7 }
+										}
+										background = {
+											visible = "[EqualTo_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' )]"
+											using = Background_Frame
+											color = { 0.65 0.65 0.65 0.45 }
+										}
 
 										tooltipwidget = {
 											county_prosperity_tooltip_container = {  }
@@ -829,14 +906,11 @@ window = {
 											enabled = "[GovernmentType.IsAffectedByProsperity]"
 											texture = "gfx/interface/icons/prosperity_level_icons.dds"
 											framesize = { 64 64 }
-											### TODO CODE TIT-77138 - FRAME SIZE SHOULD BE DYNAMIC BASED ON THE PROSPERITY LEVEL
 											frame = "[Select_int32( GreaterThanOrEqualTo_int32( County.GetProsperityLevel, '(int32)80' ), '(int32)5', Select_int32( GreaterThanOrEqualTo_int32( County.GetProsperityLevel, '(int32)60' ), '(int32)4', Select_int32( GreaterThanOrEqualTo_int32( County.GetProsperityLevel, '(int32)40' ), '(int32)3', Select_int32( GreaterThanOrEqualTo_int32( County.GetProsperityLevel, '(int32)20' ), '(int32)2', '(int32)1' ) ) ) )]"
 										}
-										# [SUI] START - 번영도 색상: 상승 녹색(#P), 하강 빨강(#N), 유지 하얀색
 										blockoverride "card_value" {
 											raw_text = "[Select_CString( GreaterThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' ), '#P ', Select_CString( LessThan_CFixedPoint( ValueBreakdown.GetFixedPointValue, '(CFixedPoint)0' ), '#N ', '' ) )][County.GetProsperityLevel]#!"
 										}
-										# [SUI] END
 										blockoverride "visible_indicator" {
 											visible = "[GovernmentType.IsAffectedByProsperity]"
 										}
@@ -847,57 +921,116 @@ window = {
 										blockoverride "card_progress_size" {}
 									}
 								}
-								# [SUI] START - 부족 자원 카드를 왼쪽 지표들과 가까이 배치
-								spacer = { size = { 8 0 } }
+								spacer = { size = { 18 0 } }
 
 								hbox = {
 									ignoreinvisible = yes
-									background = {
-										using = Background_Area_Dark
-										alpha = 0.8
-									}
 								# [SUI] END
 
-									# [SUI] START - 영지 상단 생산 정보 숨김 (시장 요약 창에서 확인)
+									# [SUI] START - 영지 상단 생산 잠재력(2x3 최대 6개 미니 아이콘 + 녹색 외곽선, 높이 82px 통일)
 									# PRODUCTION INFO
-									widget_top_county_info_vertical_no_indicator = {
-										visible = no
+									widget = {
+										visible = "[Or( Not( IsDataModelEmpty( HoldingView.GetProductionItems ) ), Not( IsDataModelEmpty( County.GetPotentialTradeGoodTypes ) ) )]"
 										datacontext = "[HoldingView.GetTopProductionItem]"
+										size = { 56 82 }
 										using = tooltip_se
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.75
+										}
+
+										background = {
+											using = Background_Frame
+											color = { 0.3 0.8 0.4 0.7 }
+										}
 
 										tooltipwidget = {
 											county_production_tooltip = {  }
 										}
-										blockoverride "card_icon" {
-											texture = "[GUIProductionItem.GetTradeGoodType.GetSmallIcon]"
+
+										fixedgridbox = {
+											parentanchor = center
+											datamodel = "[DataModelFirst( County.GetPotentialTradeGoodTypes, '(int32)6' )]"
+											addcolumn = 22
+											addrow = 22
+											datamodel_wrap = 2
+											flipdirection = yes
+
+											item = {
+												widget = {
+													size = { 20 20 }
+
+													# 미생산 잠재력 품목 (흐리게)
+													icon = {
+														size = { 20 20 }
+														alpha = 0.35
+														texture = "[TradeGoodType.GetSmallIcon]"
+													}
+
+													# 실제 생산 중인 잠재력 품목 (선명하게 오버레이)
+													widget = {
+														size = { 100% 100% }
+														datamodel = "[HoldingView.GetProductionItems]"
+
+														item = {
+															icon = {
+																visible = "[ObjectsEqual( GUIProductionItem.GetTradeGoodType, TradeGoodType.Self )]"
+																size = { 20 20 }
+																texture = "[TradeGoodType.GetSmallIcon]"
+															}
+														}
+													}
+												}
+											}
 										}
-										blockoverride "card_value" {
-											raw_text = "[GUIProductionItem.GetAmount|+=0^]"
+
+										# 생산 품목 수 칩 (녹색)
+										widget = {
+											parentanchor = top|left
+											position = { -8 -11 }
+											size = { 28 28 }
+											alwaystransparent = yes
+
+											icon = {
+												size = { 100% 100% }
+												texture = "gfx/interface/window_regency/regency_level_bg.dds"
+												alwaystransparent = yes
+											}
+
+											text_single = {
+												parentanchor = center
+												raw_text = "#P [GetDataModelSize( HoldingView.GetProductionItems )]#!"
+												fontsize = 14
+												align = nobaseline
+												alwaystransparent = yes
+											}
 										}
 									}
 
-
-									vbox = {
-										margin = { 0 10 }
-										layoutpolicy_vertical = expanding
-
-										datacontext = "[HoldingView.GetTopProductionItem]"
-										datacontext = "[HoldingView.GetProvince.GetCountyCapitalProvince.GetTradeMarket]"
-										visible = no
-
-										divider_light = {
-											layoutpolicy_vertical = expanding
-											size = { 4 0 }
-										}
+									spacer = {
+										size = { 3 0 }
+										visible = "[And( Not( IsDataModelEmpty( TradeMarket.GetRealmNeeds ) ), Or( Not( IsDataModelEmpty( HoldingView.GetProductionItems ) ), Not( IsDataModelEmpty( County.GetPotentialTradeGoodTypes ) ) ) )]"
 									}
 									# [SUI] END
 
+									# [SUI] START - 미충족 수요(2x3 최대 6개 미니 아이콘 + 빨간색 외곽선, 높이 82px 통일)
 									# MARKET NEEDS INFO
-									widget_top_county_info_vertical_no_indicator = {
+									widget = {
 										datacontext = "[HoldingView.GetProvince.GetCountyCapitalProvince.GetTradeMarket]"
 										visible = "[Not( IsDataModelEmpty( TradeMarket.GetRealmNeeds ) )]"
-										datacontext = "[TradeMarket.GetTopRealmNeed]"
+										size = { 56 82 }
 										using = tooltip_se
+
+										background = {
+											using = Background_Area_Dark
+											alpha = 0.75
+										}
+
+										background = {
+											using = Background_Frame
+											color = { 0.85 0.35 0.3 0.7 }
+										}
 
 										tooltipwidget = {
 											county_market_needs_tooltip = {
@@ -907,28 +1040,59 @@ window = {
 												}
 											}
 										}
-										blockoverride "card_icon" {
-											icon = {
-												visible = "[Not( TradeMarketRealmNeed.IsCategory )]"
-												datacontext = "[TradeMarketRealmNeed.GetTradeGoodType]"
-												size = { 100% 100% }
-												texture = "[TradeGoodType.GetSmallIcon]"
-											}
 
-											icon = {
-												visible = "[TradeMarketRealmNeed.IsCategory]"
-												datacontext = "[TradeMarketRealmNeed.GetCategory]"
-												size = { 100% 100% }
-												texture = "[TradeGoodCategory.GetSmallIcon]"
+										fixedgridbox = {
+											parentanchor = center
+											datamodel = "[DataModelFirst( TradeMarket.GetRealmNeeds, '(int32)6' )]"
+											addcolumn = 22
+											addrow = 22
+											datamodel_wrap = 2
+											flipdirection = yes
+
+											item = {
+												widget = {
+													size = { 20 20 }
+
+													icon = {
+														visible = "[Not( TradeMarketRealmNeed.IsCategory )]"
+														datacontext = "[TradeMarketRealmNeed.GetTradeGoodType]"
+														size = { 20 20 }
+														texture = "[TradeGoodType.GetSmallIcon]"
+													}
+
+													icon = {
+														visible = "[TradeMarketRealmNeed.IsCategory]"
+														datacontext = "[TradeMarketRealmNeed.GetCategory]"
+														size = { 20 20 }
+														texture = "[TradeGoodCategory.GetSmallIcon]"
+													}
+												}
 											}
 										}
-										# [SUI] START - 부족 자원 1개 수치 대신 총 부족 자원 개수(▼N종) 표시
-										blockoverride "card_value" {
-											text = "SUI_COUNTY_NEEDS_COUNT"
-										}
-										# [SUI] END
 
+										# 부족 품목 수 칩 (빨강)
+										widget = {
+											parentanchor = top|left
+											position = { -8 -11 }
+											size = { 28 28 }
+											alwaystransparent = yes
+
+											icon = {
+												size = { 100% 100% }
+												texture = "gfx/interface/window_regency/regency_level_bg.dds"
+												alwaystransparent = yes
+											}
+
+											text_single = {
+												parentanchor = center
+												raw_text = "#N [GetDataModelSize( TradeMarket.GetRealmNeeds )]#!"
+												fontsize = 14
+												align = nobaseline
+												alwaystransparent = yes
+											}
+										}
 									}
+									# [SUI] END
 								}
 							}
 						}
@@ -4625,7 +4789,9 @@ types CountyViewTypes {
 		}
 
 		text_single = {
-			text = "[GUIProductionItem.GetProductionBreakdown.GetValue|L]"
+			# [SUI] START - 생산량 툴팁 수치도 ▲ 규칙으로 통일
+			raw_text = "#P ▲[GUIProductionItem.GetAmount|1^]#!"
+			# [SUI] END
 			align = nobaseline
 			tooltip_visible = "[GUIProductionItem.GetProductionBreakdown.HasTooltip]"
 
@@ -5683,14 +5849,25 @@ types CountyViewTypes {
 							}
 
 							blockoverride "production_row_market_info" {
+								# [SUI] START - 시장 수급량 툴팁도 ▲(잉여) / ▼(부족) 규칙으로 통일
 								text_single = {
-									visible = "[TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self )]"
-									text = "COUNTY_PRODUCTION_MARKET_BALANCE"
+									visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThan_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0' ) )]"
+									raw_text = "([Select_CString( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), '#P ▲', '#N ▼' )][TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!)"
 									align = nobaseline
 
 									tooltip_visible = "[GUIProductionItem.HasMarketBalance]"
 									tooltipwidget = { widget_trade_good_balance_breakdown_tooltip = {} }
 								}
+
+								text_single = {
+									visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), EqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0' ) )]"
+									raw_text = "#weak (0)#!"
+									align = nobaseline
+
+									tooltip_visible = "[GUIProductionItem.HasMarketBalance]"
+									tooltipwidget = { widget_trade_good_balance_breakdown_tooltip = {} }
+								}
+								# [SUI] END
 
 								text_single = {
 									visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), TradeMarket.PlayerHasExploitativeAccessToGood( TradeGoodType.Self ) )]"

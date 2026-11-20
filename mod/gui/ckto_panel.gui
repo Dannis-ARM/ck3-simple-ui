@@ -242,7 +242,9 @@ type ckto_panel = vbox {
     button_tertiary = { size = { 110 26 } text = "ckto_cancel" onclick = "[TradeRoutePlanner.Close]" }
   }
   text_single = { visible = "[GetVariableSystem.HasValue('ckto_phase', 'no_match')]" text = "ckto_no_match" using = Font_Size_Small }
-  text_single = { visible = "[GetVariableSystem.HasValue('ckto_phase', 'done')]" text = "ckto_result" using = Font_Size_Small }
+  # [SUI] START - 하단 중복 수익률 텍스트 숨김
+  text_single = { visible = no text = "ckto_result" using = Font_Size_Small }
+  # [SUI] END
   # Zero-size host so the hidden search steps never take layout space.
   widget = {
     size = { 0 0 }

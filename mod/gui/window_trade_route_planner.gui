@@ -2599,21 +2599,42 @@ types TradeRoutePlannerTypes
 			texture = "[TradeGoodType.GetSmallIcon]"
 		}
 
-		# [SUI] START - 추천 상품일 경우 아이콘 우측 상단에 추천 배지(★) 표시
+		# [SUI] START - 추천 상품일 경우 아이콘 우측 상단에 금색 따봉 배지 + 부드러운 페이드 애니메이션 표시
 		widget = {
 			size = { 100% 100% }
+			allow_outside = yes
 			alwaystransparent = yes
 			datamodel = "[TradeRoutePlanner.GetRecommendedTradeGoodTypes]"
 
 			item = {
 				icon = {
-					visible = "[ObjectsEqual( RecommendedGood.GetTradeGoodType, TradeGoodType.Self )]"
+					visible = "[And( TradeRoutePlanner.IsInProfitMode, ObjectsEqual( RecommendedGood.GetTradeGoodType, TradeGoodType.Self ) )]"
 					parentanchor = top|right
 					position = { 3 -3 }
 					size = { 18 18 }
 					texture = "gfx/interface/icons/sui_thumbs_up.dds"
 					alwaystransparent = yes
-					using = Animation_Pulse_Alpha
+
+					state = {
+						name = _show
+						trigger_on_create = yes
+						next = sui_pulse_dim
+						alpha = 1.0
+					}
+
+					state = {
+						name = sui_pulse_dim
+						next = sui_pulse_bright
+						duration = 0.8
+						alpha = 0.45
+					}
+
+					state = {
+						name = sui_pulse_bright
+						next = sui_pulse_dim
+						duration = 0.8
+						alpha = 1.0
+					}
 				}
 			}
 		}
@@ -2623,6 +2644,7 @@ types TradeRoutePlannerTypes
 	type hbox_planner_all_goods_category = hbox {
 		visible = "[NotEqualTo_int32( GetDataModelSize( TradeGoodCategory.GetTradeGoodTypes ), '(int32)1')]"
 		layoutpolicy_horizontal = expanding
+		spacing = 4
 		margin = { 0 3 }
 		margin_left = 4
 
@@ -2634,7 +2656,7 @@ types TradeRoutePlannerTypes
 
 		# [SUI] START - 수익(상인) 모드에서는 전문성 링, 수요(비상인) 모드에서는 기존 바닐라 목차 아이콘 표시
 		widget = {
-			size = { 44 44 }
+			size = { 46 44 }
 
 			divider = {
 				parentanchor = right
@@ -2701,28 +2723,38 @@ types TradeRoutePlannerTypes
 		}
 		# [SUI] END
 
-		flowcontainer = {
+		dynamicgridbox = {
 			visible = "[TradeRoutePlanner.IsInProfitMode]"
-			spacing = 2
 			block "misc_goods_datamodel" {}
-			wrap_count = 7
+			datamodel_wrap = 3
+			flipdirection = yes
 
-			# [SUI] START - 수익(상인) 모드에서만 전문성 원형 링 표시, 수요(비상인) 모드에서는 기존 버튼만 표시
+			# [SUI] START - 기타 단독 교역품도 일반 카테고리와 동일한 가로 '<전문성> | <상품>' 3열 그리드로 통일
 			item = {
 				widget = {
-					size = { 42 84 }
-					visible = "[TradeRoutePlanner.IsInProfitMode]"
+					size = { 100 48 }
 
-					vbox = {
+					hbox = {
 						size = { 100% 100% }
-						spacing = 2
+						margin_right = 6
+						spacing = 4
+
+						widget = {
+							size = { 46 44 }
+
+							divider = {
+								parentanchor = right
+								size = { 4 100% }
+							}
+
+							widget_trade_good_category_tiny = {
+								parentanchor = center
+								datacontext = "[TradeGoodType.GetNeedCategory]"
+								datacontext = "[GetPlayer]"
+							}
+						}
 
 						button_planner_all_goods_good = {}
-
-						widget_trade_good_category_tiny = {
-							datacontext = "[TradeGoodType.GetNeedCategory]"
-							datacontext = "[GetPlayer]"
-						}
 					}
 				}
 			}
