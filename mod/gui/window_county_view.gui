@@ -1036,28 +1036,6 @@ window = {
 												}
 											}
 										}
-
-										# 부족 품목 수 칩 (빨강)
-										widget = {
-											parentanchor = top|left
-											position = { -8 -11 }
-											size = { 28 28 }
-											alwaystransparent = yes
-
-											icon = {
-												size = { 100% 100% }
-												texture = "gfx/interface/window_regency/regency_level_bg.dds"
-												alwaystransparent = yes
-											}
-
-											text_single = {
-												parentanchor = center
-												raw_text = "#N [GetDataModelSize( TradeMarket.GetRealmNeeds )]#!"
-												fontsize = 14
-												align = nobaseline
-												alwaystransparent = yes
-											}
-										}
 									}
 									# [SUI] END
 								}
