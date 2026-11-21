@@ -1,0 +1,159 @@
+#######################################################
+###########   SIMPLE UI - OPTIONS POPUP   #############
+#######################################################
+
+types SimpleUIOptionsTypes
+{
+	type sui_options_window = window {
+		name = "sui_options_window"
+		widgetid = "sui_options_window"
+
+		visible = "[GetVariableSystem.Exists( 'sui_options_open' )]"
+		position = { 630 120 }
+		size = { 430 435 }
+		movable = yes
+		allow_outside = yes
+		layer = middle
+
+		using = Window_Background
+		using = Window_Decoration_Spike
+
+		state = {
+			name = _show
+			using = Animation_FadeIn_Quick
+			using = Sound_WindowShow_Standard
+			on_finish = "[PdxGuiWidget.StackTop]"
+		}
+
+		state = {
+			name = _hide
+			using = Animation_FadeOut_Quick
+			using = Sound_WindowHide_Standard
+		}
+
+		vbox = {
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			using = Window_Margins
+
+			header_pattern = {
+				layoutpolicy_horizontal = expanding
+
+				blockoverride "header_text"
+				{
+					text = "SUI_OPTIONS_TITLE"
+				}
+
+				blockoverride "button_close"
+				{
+					onclick = "[GetVariableSystem.Clear( 'sui_options_open' )]"
+				}
+			}
+
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+				margin = { 16 12 }
+				spacing = 10
+
+				# 1. 건물 상단 자원 충족 점 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_need_dots' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_need_dots' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_NEED_DOTS"
+					}
+				}
+
+				# 2. 업그레이드 가능 화살표 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_upgrade_icon' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_upgrade_icon' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_UPGRADE_ICON"
+					}
+				}
+
+				# 3. 신규 건설 가능 망치 아이콘 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_build_icon' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_build_icon' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_BUILD_ICON"
+					}
+				}
+
+				# 4. 건설 중 원형 로딩 스피너 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_spinner' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_spinner' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_LOADING_SPINNER"
+					}
+				}
+
+				# 5. 신규 건설 목록 역할 분류 아이콘 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_need_badge' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_need_badge' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_NEED_BADGE"
+					}
+				}
+
+				# 6. 기존 건물 슬롯 역할 분류 아이콘 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_built_role_badge' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_built_role_badge' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_BUILT_ROLE_BADGE"
+					}
+				}
+
+				# 7. 좌우 드래그 이동 아이콘 표시 (기본 ON)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_hide_drag_icon' )]"
+					blockoverride "checkbox" {
+						checked = "[Not( GetVariableSystem.Exists( 'sui_opt_hide_drag_icon' ) )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_DRAG_ICON"
+					}
+				}
+
+				# 8. 백작령 상단 봉역 미충족분 카드 표시 (기본 OFF)
+				button_checkbox_label = {
+					layoutpolicy_horizontal = expanding
+					onclick = "[GetVariableSystem.Toggle( 'sui_opt_show_realm_needs_card' )]"
+					blockoverride "checkbox" {
+						checked = "[GetVariableSystem.Exists( 'sui_opt_show_realm_needs_card' )]"
+					}
+					blockoverride "text" {
+						text = "SUI_OPT_REALM_NEEDS_CARD"
+					}
+				}
+
+				expand = {}
+			}
+		}
+	}
+}
