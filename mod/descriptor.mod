@@ -1,4 +1,4 @@
-version="0.3.1"
+version="0.3.2"
 tags={
 	"1.21 'Florin'"
 	"Interface"

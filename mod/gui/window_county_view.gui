@@ -3259,7 +3259,7 @@ types CountyViewTypes {
 		# [SUI] START - 건설된 슬롯=금색 원, 빈 슬롯=회색 원
 		flowcontainer = {
 			name = "filled_slots"
-			datamodel = "[RepeatedItem( GUIDistrictItem.GetNumberOfBuildings )]"
+			datamodel = "[RepeatedItem( Max_int32( Subtract_int32( GUIDistrictItem.GetNumberOfBuildings, '(int32)1' ), '(int32)0' ) )]"
 			spacing = 3
 
 			item = {
@@ -3354,13 +3354,28 @@ types CountyViewTypes {
 		# [SUI] START - 빈 땅 신규 건설 아이콘도 녹색 망치로 통일
 		icon = {
 			name = "build_new_icon"
-			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.IsDistrictButtonEnabled )]"
+			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.CanConstructDistrict )]"
 			size = { 28 28 }
 			parentanchor = center
 			texture = "gfx/interface/colors/white.dds"
 			color = { 0.42 0.72 0.46 1.0 }
 			alwaystransparent = yes
 			using = Animation_Pulse_Alpha
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				blend_mode = alphamultiply
+			}
+		}
+
+		icon = {
+			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, Not( GUIDistrictItem.CanConstructDistrict ) )]"
+			size = { 26 26 }
+			parentanchor = center
+			alpha = 0.4
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.55 0.55 0.58 1.0 }
+			alwaystransparent = yes
 
 			modify_texture = {
 				texture = "gfx/interface/icons/flat_icons/hammer.dds"
@@ -3377,47 +3392,14 @@ types CountyViewTypes {
 			size = { 28 28 }
 		}
 
-		# [SUI] START - 건설 중일 때 원형 슬롯과 프로그레스바 겹침 방지 + 하늘색 외곽선 + 망치질 애니메이션
-		widget = {
+		# [SUI] START - 지구/무역거점 건설 중일 때 중앙에 원형 로딩 스피너 표시 (회전 + 원형 그림자 + 옵션 연동)
+		icon_construction_progress_indicator = {
 			visible = "[GUIDistrictItem.IsConstructing]"
-			size = { 100% 100% }
-			alwaystransparent = yes
+			parentanchor = center
+			size = { 34 34 }
 
-			background = {
-				using = Background_Frame
-				color = { 0.35 0.78 1.0 0.9 }
-			}
-
-			icon = {
-				parentanchor = center
-				size = { 26 26 }
-				texture = "gfx/interface/icons/flat_icons/hammer.dds"
-				color = { 0.45 0.85 1.0 1.0 }
-				alwaystransparent = yes
-
-				state = {
-					name = _show
-					next = sui_hammer_strike
-					position = { 2 -3 }
-					duration = 0.0
-				}
-
-				state = {
-					name = sui_hammer_strike
-					next = sui_hammer_lift
-					position = { -3 3 }
-					duration = 0.12
-					using = Animation_Curve_Default
-				}
-
-				state = {
-					name = sui_hammer_lift
-					next = sui_hammer_strike
-					position = { 2 -3 }
-					duration = 0.35
-					delay = 0.12
-					using = Animation_Curve_Default
-				}
+			blockoverride "icon_size" {
+				size = { 24 24 }
 			}
 		}
 
@@ -3690,13 +3672,28 @@ types CountyViewTypes {
 		# [SUI] START - 빈 땅 신규 건설 아이콘도 녹색 망치로 통일
 		icon = {
 			name = "build_new_icon"
-			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.IsDistrictButtonEnabled )]"
+			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, GUIDistrictItem.CanConstructDistrict )]"
 			size = { 28 28 }
 			parentanchor = center
 			texture = "gfx/interface/colors/white.dds"
 			color = { 0.42 0.72 0.46 1.0 }
 			alwaystransparent = yes
 			using = Animation_Pulse_Alpha
+
+			modify_texture = {
+				texture = "gfx/interface/icons/flat_icons/hammer.dds"
+				blend_mode = alphamultiply
+			}
+		}
+
+		icon = {
+			visible = "[And( GUIDistrictItem.IsBuildNewIconShown, Not( GUIDistrictItem.CanConstructDistrict ) )]"
+			size = { 26 26 }
+			parentanchor = center
+			alpha = 0.4
+			texture = "gfx/interface/colors/white.dds"
+			color = { 0.55 0.55 0.58 1.0 }
+			alwaystransparent = yes
 
 			modify_texture = {
 				texture = "gfx/interface/icons/flat_icons/hammer.dds"
@@ -4221,6 +4218,12 @@ types CountyViewTypes {
 			}
 			widget_construction_progress_bar = {  }
 
+			icon_building_level = {
+				visible = "[Or( GUIBuildingItem.IsConstructing, GUIBuildingItem.IsInQueue )]"
+				parentanchor = top|left
+				position = { -5 -5 }
+			}
+
 			icon_construction_progress_indicator = {
 				parentanchor = top|right
 				position = { 4 -4 }
@@ -4273,8 +4276,8 @@ types CountyViewTypes {
 	}
 
 	type widget_construction_progress_bar = widget {
-		size = { 56 8 }
-		position = { 0 8 }
+		size = { 54 8 }
+		position = { 0 -3 }
 		alwaystransparent = yes
 		parentanchor = bottom|hcenter
 
@@ -7967,6 +7970,11 @@ types CountyViewTypes {
 							spacing = 6
 							margin = { 8 4 }
 
+							state = {
+								name = _show
+								on_start = "[GetVariableSystem.Clear( 'selected_potential_district' )]"
+							}
+
 							item = {
 								widget = {
 									size = { 64 64 }
@@ -7981,11 +7989,42 @@ types CountyViewTypes {
 										widget_district_with_background = {
 											datacontext = "[GUIPotentialDistrictItem.GetDistrictType]"
 											size = { 100% 100% }
+											alpha = "[Select_float( GUIPotentialDistrictItem.CanConstruct, '(float)1.0', '(float)0.45' )]"
 
 											blockoverride "icon_district_modify" {
 												size = { 56 56 }
 											}
 										}
+
+										# [SUI] START - 건설 가능 지구 좌측 상단 녹색 망치 / 건설 불가 지구 빨간 X 표시
+										icon = {
+											visible = "[GUIPotentialDistrictItem.CanConstruct]"
+											parentanchor = top|left
+											position = { 3 3 }
+											size = { 14 14 }
+											texture = "gfx/interface/colors/white.dds"
+											color = { 0.42 0.72 0.46 1.0 }
+											alwaystransparent = yes
+											modify_texture = {
+												texture = "gfx/interface/icons/flat_icons/hammer.dds"
+												blend_mode = alphamultiply
+											}
+										}
+
+										icon = {
+											visible = "[Not( GUIPotentialDistrictItem.CanConstruct )]"
+											parentanchor = top|left
+											position = { 3 3 }
+											size = { 14 14 }
+											texture = "gfx/interface/colors/white.dds"
+											color = { 0.92 0.36 0.32 1.0 }
+											alwaystransparent = yes
+											modify_texture = {
+												texture = "gfx/interface/icons/symbols/icon_cross.dds"
+												blend_mode = alphamultiply
+											}
+										}
+										# [SUI] END
 
 										selection_glow = {
 											visible = "[Or( GetVariableSystem.HasValue( 'selected_potential_district', GUIPotentialDistrictItem.GetDistrictType.GetKey ), And( Not( GetVariableSystem.Exists( 'selected_potential_district' ) ), EqualTo_int32( PdxGuiWidget.GetIndexInDataModel, '(int32)0' ) ) )]"
@@ -8364,7 +8403,41 @@ types CountyViewTypes {
 
 										button_potential_building = {}
 
-										# [SUI] START - 신규 건설 목록 건물 역할 분류 아이콘 (7대 역할, 효과 비중 상위 최대 2개)
+										# [SUI] START - 신규 건물 건설 가능 좌측 상단 녹색 망치 / 불가 빨간 X 표시
+										widget = {
+											size = { 100% 100% }
+											alwaystransparent = yes
+
+											icon = {
+												visible = "[GUIPotentialBuildingItem.CanConstruct]"
+												parentanchor = top|left
+												position = { 3 3 }
+												size = { 14 14 }
+												texture = "gfx/interface/colors/white.dds"
+												color = { 0.42 0.72 0.46 1.0 }
+												alwaystransparent = yes
+												modify_texture = {
+													texture = "gfx/interface/icons/flat_icons/hammer.dds"
+													blend_mode = alphamultiply
+												}
+											}
+
+											icon = {
+												visible = "[Not( GUIPotentialBuildingItem.CanConstruct )]"
+												parentanchor = top|left
+												position = { 3 3 }
+												size = { 14 14 }
+												texture = "gfx/interface/colors/white.dds"
+												color = { 0.92 0.36 0.32 1.0 }
+												alwaystransparent = yes
+												modify_texture = {
+													texture = "gfx/interface/icons/symbols/icon_cross.dds"
+													blend_mode = alphamultiply
+												}
+											}
+										}
+
+										# 신규 건설 목록 건물 역할 분류 아이콘 (7대 역할, 효과 비중 상위 최대 2개)
 										sui_building_role_badge = {}
 										# [SUI] END
 									}
