@@ -183,11 +183,139 @@ button_tertiary = {
 					visible = "[TradeRoutePlanner.IsInNeedsMode]"
 					spacing = 5
 
+					# [SUI] START - 상단: 지도 배너 상품 필터 (하단 기본 무역품 표와 동일한 2열 레이아웃, 다중 선택)
+					vbox = {
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+						margin_bottom = 6
+
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							margin = { 4 0 }
+
+							text_label_center = {
+								margin = { 0 4 }
+								align = left|nobaseline
+								text = "SUI_MAP_FILTER_PANEL_TITLE"
+							}
+
+							expand = {}
+
+							button_checkbox_label = {
+								onclick = "[GetVariableSystem.Toggle( 'sui_map_custom_filter_on' )]"
+								blockoverride "checkbox" {
+									checked = "[GetVariableSystem.Exists( 'sui_map_custom_filter_on' )]"
+								}
+								blockoverride "text" {
+									text = "SUI_MAP_FILTER_APPLY"
+								}
+							}
+						}
+
+						hbox = {
+							spacing = 3
+
+							vbox = {
+								datamodel = "[DataModelFirst( GetBasicNeedTradeGoodCategories, '(int32)4' )]"
+								spacing = 3
+
+								item = {
+									sui_hbox_planner_filter_category = {}
+								}
+							}
+
+							spacer = { size = { 3 0 } }
+
+							vbox = {
+								layoutpolicy_vertical = expanding
+
+								icon = {
+									layoutpolicy_vertical = expanding
+									texture = "gfx/interface/colors/black.dds"
+									spriteType = Corneredtiled
+									size = { 8 4 }
+									alpha = 0.4
+
+									modify_texture = {
+										texture = "gfx/interface/component_masks/mask_edge_3px.dds"
+										spriteType = Corneredtiled
+										spriteborder = { 4 4 }
+										blend_mode = alphamultiply
+									}
+
+									modify_texture = {
+										texture = "gfx/interface/component_masks/mask_scratches.dds"
+										spriteType = Corneredtiled
+										blend_mode = alphamultiply
+									}
+								}
+							}
+
+							spacer = { size = { 3 0 } }
+
+							vbox = {
+								spacing = 3
+
+								vbox = {
+									datamodel = "[DataModelSkipFirst( GetBasicNeedTradeGoodCategories, '(int32)4' )]"
+									spacing = 3
+
+									item = {
+										sui_hbox_planner_filter_category = {}
+									}
+								}
+
+								hbox = {
+									visible = "[DataModelHasItems( GetBasicTradeGoodsAloneInNeedCategory )]"
+									layoutpolicy_horizontal = expanding
+									spacing = 4
+									margin = { 0 3 }
+									margin_left = 4
+
+									background = {
+										using = Background_Area
+										using = Color_White
+										alpha = 0.06
+									}
+
+									widget = {
+										size = { 46 44 }
+
+										divider = {
+											parentanchor = right
+											size = { 4 100% }
+										}
+
+										text_single = {
+											parentanchor = center
+											text = "TRADE_MARKET_MISC_CATEGORY"
+											align = center|nobaseline
+											default_format = "#low"
+										}
+									}
+
+									flowcontainer = {
+										datamodel = "[GetBasicTradeGoodsAloneInNeedCategory]"
+										wrap_count = 7
+										spacing = 2
+
+										item = {
+											sui_button_planner_filter_good = {}
+										}
+									}
+									expand = {}
+								}
+							}
+						}
+					}
+
+					# 하단: 기존 기본 무역품 (지도 강조)
 					text_label_center = {
 						margin = { 0 5 }
 						align = center|nobaseline
 						text = "MARKET_WINDOW_TRADE_BASIC_GOOD"
 					}
+					# [SUI] END
 
 					# Basic goods by category (same layout as profit all-goods basic section)
 					hbox = {
@@ -2599,6 +2727,32 @@ types TradeRoutePlannerTypes
 			texture = "[TradeGoodType.GetSmallIcon]"
 		}
 
+		# [SUI] START - 수요(세속 영주) 모드에서 내 수도 시장 잉여(↑) / 부족(↓) 화살표 표시 (지도 배너와 동일 아이콘)
+		widget = {
+			datacontext = "[GetPlayer.GetCapitalLocation.GetTradeMarket]"
+			visible = "[And3( Not( TradeRoutePlanner.IsInProfitMode ), TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) )]"
+			parentanchor = top|left
+			position = { 2 2 }
+			size = { 13 13 }
+			alwaystransparent = yes
+
+			icon = {
+				visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
+				size = { 13 13 }
+				texture = "gfx/interface/icons/symbols/icon_arrow_up_blue.dds"
+				alwaystransparent = yes
+			}
+
+			icon = {
+				visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
+				size = { 13 13 }
+				texture = "gfx/interface/icons/symbols/icon_arrow_up.dds"
+				mirror = vertical
+				alwaystransparent = yes
+			}
+		}
+		# [SUI] END
+
 		# [SUI] START - 추천 상품일 경우 아이콘 우측 상단에 금색 따봉 배지 + 부드러운 페이드 애니메이션 표시
 		widget = {
 			size = { 100% 100% }
@@ -2640,6 +2794,96 @@ types TradeRoutePlannerTypes
 		}
 		# [SUI] END
 	}
+
+	# [SUI] START - 지도 배너 다중 상품 필터용 2열 카테고리/버튼 타입
+	type sui_button_planner_filter_good = button_standard {
+		size = { 42 42 }
+		onclick = "[GetVariableSystem.Toggle( TradeGoodType.GetNameNoTooltip )]"
+		onclick = "[GetVariableSystem.Set( 'sui_map_custom_filter_on', 'yes' )]"
+		down = "[GetVariableSystem.Exists( TradeGoodType.GetNameNoTooltip )]"
+		tooltip = "[TradeGoodType.GetName]"
+
+		icon = {
+			parentanchor = center
+			size = { 32 32 }
+			texture = "[TradeGoodType.GetSmallIcon]"
+			alpha = "[Select_float( GetVariableSystem.Exists( TradeGoodType.GetNameNoTooltip ), '(float)1.0', '(float)0.45' )]"
+		}
+
+		# 수도 시장 잉여(↑) / 부족(↓) 화살표 (지도 배너와 동일 아이콘)
+		widget = {
+			datacontext = "[GetPlayer.GetCapitalLocation.GetTradeMarket]"
+			visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) )]"
+			parentanchor = top|left
+			position = { 2 2 }
+			size = { 13 13 }
+			alwaystransparent = yes
+
+			icon = {
+				visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
+				size = { 13 13 }
+				texture = "gfx/interface/icons/symbols/icon_arrow_up_blue.dds"
+				alwaystransparent = yes
+			}
+
+			icon = {
+				visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
+				size = { 13 13 }
+				texture = "gfx/interface/icons/symbols/icon_arrow_up.dds"
+				mirror = vertical
+				alwaystransparent = yes
+			}
+		}
+
+		background = {
+			visible = "[GetVariableSystem.Exists( TradeGoodType.GetNameNoTooltip )]"
+			using = Background_Frame
+			color = { 0.86 0.72 0.36 1.0 }
+			margin = { 1 1 }
+		}
+	}
+
+	type sui_hbox_planner_filter_category = hbox {
+		visible = "[NotEqualTo_int32( GetDataModelSize( TradeGoodCategory.GetTradeGoodTypes ), '(int32)1')]"
+		layoutpolicy_horizontal = expanding
+		spacing = 4
+		margin = { 0 3 }
+		margin_left = 4
+
+		background = {
+			using = Background_Area
+			color = "[TradeGoodCategory.GetColor]"
+			alpha = 0.1
+		}
+
+		widget = {
+			size = { 46 44 }
+
+			divider = {
+				parentanchor = right
+				size = { 4 100% }
+			}
+
+			icon = {
+				parentanchor = center
+				size = { 36 36 }
+				texture = "[TradeGoodCategory.GetSmallIcon]"
+				tooltip = "[TradeGoodCategory.GetName]"
+			}
+		}
+
+		flowcontainer = {
+			datamodel = "[TradeGoodCategory.GetTradeGoodTypes]"
+			wrap_count = 7
+			spacing = 2
+
+			item = {
+				sui_button_planner_filter_good = {}
+			}
+		}
+		expand = {}
+	}
+	# [SUI] END
 
 	type hbox_planner_all_goods_category = hbox {
 		visible = "[NotEqualTo_int32( GetDataModelSize( TradeGoodCategory.GetTradeGoodTypes ), '(int32)1')]"
@@ -2693,6 +2937,7 @@ types TradeRoutePlannerTypes
 
 	type hbox_planner_all_goods_misc = hbox {
 		layoutpolicy_horizontal = expanding
+		spacing = 4
 		block "misc_goods_visible" {}
 		margin = { 0 3 }
 		margin_left = 4
@@ -2703,10 +2948,10 @@ types TradeRoutePlannerTypes
 			alpha = 0.06
 		}
 
-		# [SUI] START - 수익(상인) 모드에서만 '기타' 목차 숨김, 수요(비상인) 모드에서는 기존대로 표시
+		# [SUI] START - 수익(상인) 모드에서만 '기타' 목차 숨김, 수요(비상인) 모드에서는 기존대로 표시 (폭 46으로 위 행과 정렬 통일)
 		widget = {
 			visible = "[Not( TradeRoutePlanner.IsInProfitMode )]"
-			size = { 40 30 }
+			size = { 46 44 }
 
 			divider = {
 				size = { 4 100% }
@@ -2714,8 +2959,7 @@ types TradeRoutePlannerTypes
 			}
 
 			text_single = {
-				autoresize = no
-				size = { 40 30 }
+				parentanchor = center
 				text = "TRADE_MARKET_MISC_CATEGORY"
 				align = center|nobaseline
 				default_format = "#low"

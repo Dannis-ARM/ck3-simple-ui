@@ -240,13 +240,13 @@ window = {
 
 									text_single = {
 										visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), And( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) ) )]"
-										raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+										raw_text = "#trade_surplus ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 										align = nobaseline
 									}
 
 									text_single = {
 										visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), And( Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) ), GreaterThanOrEqualTo_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0.1' ) ) )]"
-										raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+										raw_text = "#trade_need ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 										align = nobaseline
 									}
 

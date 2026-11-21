@@ -959,7 +959,7 @@ window = {
 
 										background = {
 											using = Background_Frame
-											color = { 0.42 0.72 0.46 0.6 }
+											color = { 0.32 0.68 0.85 0.75 }
 										}
 
 										tooltipwidget = {
@@ -1045,7 +1045,7 @@ window = {
 
 											text_single = {
 												parentanchor = center
-												raw_text = "#P [GetDataModelSize( HoldingView.GetProductionItems )]#!"
+												raw_text = "#trade_surplus [GetDataModelSize( HoldingView.GetProductionItems )]#!"
 												fontsize = 14
 												align = nobaseline
 												alwaystransparent = yes
@@ -1074,7 +1074,7 @@ window = {
 
 										background = {
 											using = Background_Frame
-											color = { 0.80 0.36 0.32 0.65 }
+											color = { 0.86 0.62 0.28 0.75 }
 										}
 
 										tooltipwidget = {
@@ -5186,7 +5186,7 @@ types CountyViewTypes {
 
 		text_single = {
 			# [SUI] START - 생산량 툴팁 수치도 ▲ 규칙으로 통일
-			raw_text = "#P ▲[GUIProductionItem.GetAmount|1^]#!"
+			raw_text = "#trade_surplus ▲[GUIProductionItem.GetAmount|1^]#!"
 			# [SUI] END
 			align = nobaseline
 			tooltip_visible = "[GUIProductionItem.GetProductionBreakdown.HasTooltip]"
@@ -6248,7 +6248,7 @@ types CountyViewTypes {
 								# [SUI] START - 시장 수급량 툴팁도 ▲(잉여) / ▼(부족) 규칙으로 통일
 								text_single = {
 									visible = "[And( TradeMarket.HasTradeBalanceForGood( TradeGoodType.Self ), GreaterThan_CFixedPoint( TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self ), '(CFixedPoint)0' ) )]"
-									raw_text = "([Select_CString( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), '#P ▲', '#N ▼' )][TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!)"
+									raw_text = "([Select_CString( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ), '#trade_surplus ▲', '#trade_need ▼' )][TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!)"
 									align = nobaseline
 
 									tooltip_visible = "[GUIProductionItem.HasMarketBalance]"
@@ -6467,9 +6467,9 @@ types CountyViewTypes {
 								}
 
 								text_single = {
-									# [SUI] START - 부족분 표시 규칙(#N ▼) 통일
+									# [SUI] START - 부족분 표시 규칙(#trade_need ▼) 통일
 									block "need_amount" {
-										raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+										raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 									}
 									align = nobaseline
 									# [SUI] END
@@ -6572,8 +6572,8 @@ types CountyViewTypes {
 						}
 
 						text_single = {
-							# [SUI] START - 부족분 표시 규칙(#N ▼) 통일
-							raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+							# [SUI] START - 부족분 표시 규칙(#trade_need ▼) 통일
+							raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 							align = nobaseline
 							# [SUI] END
 						}
@@ -6640,8 +6640,8 @@ types CountyViewTypes {
 				}
 
 				text_single = {
-					# [SUI] START - 부족분 표시 규칙(#N ▼) 통일
-					raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+					# [SUI] START - 부족분 표시 규칙(#trade_need ▼) 통일
+					raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 					align = nobaseline
 					# [SUI] END
 				}
@@ -6687,8 +6687,8 @@ types CountyViewTypes {
 						expand = {  }
 
 						text_single = {
-							# [SUI] START - 부족분 표시 규칙(#N ▼) 통일
-							raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+							# [SUI] START - 부족분 표시 규칙(#trade_need ▼) 통일
+							raw_text = "#trade_need ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
 							align = nobaseline
 							# [SUI] END
 						}

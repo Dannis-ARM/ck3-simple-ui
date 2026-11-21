@@ -246,7 +246,7 @@ types SimpleUIMarketTypes
 
 						background = {
 							using = Background_Frame
-							color = { 0.80 0.36 0.32 0.65 }
+							color = { 0.86 0.62 0.28 0.65 }
 						}
 
 						icon = {
@@ -263,7 +263,7 @@ types SimpleUIMarketTypes
 						expand = {}
 
 						text_single = {
-							raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+							raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 							align = nobaseline
 						}
 					}
@@ -330,7 +330,7 @@ types SimpleUIMarketTypes
 				expand = {}
 
 				text_single = {
-					raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+					raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 					align = nobaseline
 				}
 			}
@@ -364,7 +364,7 @@ types SimpleUIMarketTypes
 						expand = {}
 
 						text_single = {
-							raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+							raw_text = "#trade_need ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
 							align = nobaseline
 						}
 					}
@@ -408,13 +408,13 @@ types SimpleUIMarketTypes
 
 			text_single = {
 				visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
-				raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+				raw_text = "#trade_surplus ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 				align = nobaseline
 			}
 
 			text_single = {
 				visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
-				raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+				raw_text = "#trade_need ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 				align = nobaseline
 			}
 		}
@@ -444,7 +444,7 @@ types SimpleUIMarketTypes
 
 							background = {
 								using = Background_Frame
-								color = { 0.80 0.36 0.32 0.65 }
+								color = { 0.86 0.62 0.28 0.65 }
 							}
 
 							icon = {
@@ -461,7 +461,7 @@ types SimpleUIMarketTypes
 							expand = {}
 
 							text_single = {
-								raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+								raw_text = "#trade_need ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
 								align = nobaseline
 							}
 						}
@@ -489,7 +489,7 @@ types SimpleUIMarketTypes
 
 					background = {
 						using = Background_Frame
-						color = { 0.42 0.72 0.46 0.6 }
+						color = { 0.32 0.68 0.85 0.6 }
 					}
 
 					icon = {
@@ -506,7 +506,7 @@ types SimpleUIMarketTypes
 					expand = {}
 
 					text_single = {
-						raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+						raw_text = "#trade_surplus ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 						align = nobaseline
 					}
 				}
@@ -566,13 +566,13 @@ types SimpleUIMarketTypes
 
 				text_single = {
 					visible = "[TradeMarket.HasNetSurplusForGood( TradeGoodType.Self )]"
-					raw_text = "#P ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+					raw_text = "#trade_surplus ▲[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 					align = nobaseline
 				}
 
 				text_single = {
 					visible = "[Not( TradeMarket.HasNetSurplusForGood( TradeGoodType.Self ) )]"
-					raw_text = "#N ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
+					raw_text = "#trade_need ▼[TradeMarket.GetNetBalanceMagnitudeForGood( TradeGoodType.Self )|1^]#!"
 					align = nobaseline
 				}
 			}
@@ -607,7 +607,7 @@ types SimpleUIMarketTypes
 							expand = {}
 
 							text_single = {
-								raw_text = "#N ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
+								raw_text = "#trade_need ▼[TradeMarketRealmNeed.GetTotalUnmet|1^]#!"
 								align = nobaseline
 							}
 						}
@@ -641,7 +641,7 @@ types SimpleUIMarketTypes
 									expand = {}
 
 									text_single = {
-										raw_text = "#N ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
+										raw_text = "#trade_need ▼[TradeMarketUnmetNeed.GetTotalUnmet|1^]#!"
 										align = nobaseline
 									}
 								}
@@ -681,7 +681,7 @@ types SimpleUIMarketTypes
 							expand = {}
 
 							text_single = {
-								raw_text = "#P ▲[GUIProductionItem.GetAmount|1^]#!"
+								raw_text = "#trade_surplus ▲[GUIProductionItem.GetAmount|1^]#!"
 								align = nobaseline
 							}
 						}
