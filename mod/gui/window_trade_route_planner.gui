@@ -2764,9 +2764,9 @@ types TradeRoutePlannerTypes
 				icon = {
 					visible = "[And( TradeRoutePlanner.IsInProfitMode, ObjectsEqual( RecommendedGood.GetTradeGoodType, TradeGoodType.Self ) )]"
 					parentanchor = top|right
-					position = { 3 -3 }
-					size = { 18 18 }
-					texture = "gfx/interface/icons/sui_thumbs_up.dds"
+					position = { -1 1 }
+					size = { 16 16 }
+					texture = "gfx/interface/icons/laws/law_approve.dds"
 					alwaystransparent = yes
 
 					state = {
