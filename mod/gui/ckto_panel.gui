@@ -2,15 +2,44 @@ types CKTOPlannerTypes {
 type ckto_panel = vbox {
   name = "ckto_panel"
   visible = "[TradeRoutePlanner.IsInProfitMode]"
-  spacing = 4
+  spacing = 6
   margin_bottom = 6
   ignoreinvisible = yes
   layoutpolicy_horizontal = expanding
+
+  # [SUI] START - 접이식 자동화 세부 설정 패널 (버튼 바 위쪽으로 펼침, 기본 숨김)
   vbox = {
+    visible = "[GetVariableSystem.Exists('sui_ckto_opts_open')]"
     enabled = "[Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match'))]"
-    spacing = 10
+    spacing = 8
+    margin = { 10 8 }
     layoutpolicy_horizontal = expanding
     ignoreinvisible = yes
+
+    background = {
+      using = Background_Area_Dark
+      alpha = 0.85
+    }
+    background = {
+      using = Background_Frame
+      color = { 0.55 0.50 0.40 0.7 }
+    }
+
+    hbox = {
+      layoutpolicy_horizontal = expanding
+      text_single = {
+        text = "SUI_CKTO_OPTS_TITLE"
+        default_format = "#high"
+        fontsize = 14
+        align = nobaseline
+      }
+      expand = {}
+      button_close = {
+        size = { 20 20 }
+        onclick = "[GetVariableSystem.Clear('sui_ckto_opts_open')]"
+      }
+    }
+  # [SUI] END
     hbox = {
       layoutpolicy_horizontal = expanding
       spacing = 6
@@ -224,42 +253,182 @@ type ckto_panel = vbox {
         # [SUI] END
       }
     }
-    spacer = { size = { 0 8 } }
-    button_primary = {
-      layoutpolicy_horizontal = expanding
-      enabled = "[And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType))]"
-      alpha = "[Select_float( And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType)), '(float)1.0', '(float)0.4' )]"
-      text = "ckto_optimize"
-      tooltip = "ckto_help"
-      onclick = "[GetVariableSystem.Set('ckto_phase', 'route')]"
-    }
-    # [SUI] START - 무역로 자동화 버튼 비활성화 시 원인별 안내 라벨 표시
-    text_single = {
-      visible = "[Not( TradeRoutePlanner.HasStartMarket )]"
-      layoutpolicy_horizontal = expanding
-      text = "SUI_CKTO_HINT_NO_MARKET"
-      using = Font_Size_Small
-      align = center|nobaseline
-      margin_top = 4
-    }
-    text_single = {
-      visible = "[And( TradeRoutePlanner.HasStartMarket, And( GetVariableSystem.Exists('ckto_locked'), Not( TradeRoutePlanner.HasSelectedTradeGoodType ) ) )]"
-      layoutpolicy_horizontal = expanding
-      text = "SUI_CKTO_HINT_NO_GOOD"
-      using = Font_Size_Small
-      align = center|nobaseline
-      margin_top = 4
-    }
-    # [SUI] END
   }
+
+  # [SUI] START - 바닐라 군사 자동화 스타일 컴팩트 1행 컨트롤 (설정 패널 하단 배치)
   hbox = {
-    visible = "[Not(Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match')))]"
     layoutpolicy_horizontal = expanding
     spacing = 6
-    text_single = {  text = "ckto_working" using = Font_Size_Small }
-    expand = {}
-    button_tertiary = { size = { 110 26 } text = "ckto_cancel" onclick = "[TradeRoutePlanner.Close]" }
+
+    # 대기 중: 무역로 자동화 실행 버튼 (정적 황금 톱니바퀴 + 라벨)
+    button_primary = {
+      visible = "[Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match'))]"
+      layoutpolicy_horizontal = expanding
+      size = { 0 36 }
+      enabled = "[And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType))]"
+      alpha = "[Select_float( And(TradeRoutePlanner.HasStartMarket, Or(Not(GetVariableSystem.Exists('ckto_locked')), TradeRoutePlanner.HasSelectedTradeGoodType)), '(float)1.0', '(float)0.4' )]"
+      tooltip = "ckto_help"
+      onclick = "[GetVariableSystem.Set('ckto_phase', 'route')]"
+
+      flowcontainer = {
+        parentanchor = center
+        direction = horizontal
+        spacing = 6
+        alwaystransparent = yes
+
+        icon_flat_standard_gold = {
+          size = { 22 22 }
+          parentanchor = vcenter
+          texture = "gfx/interface/icons/flat_icons/army_automation.dds"
+          alwaystransparent = yes
+        }
+
+        text_single = {
+          parentanchor = vcenter
+          text = "ckto_optimize"
+          align = nobaseline
+          alwaystransparent = yes
+        }
+      }
+    }
+
+    # 실행 중: 황금 회전 톱니바퀴 + 작업 중 표시 (enabled=no 없이 황금색 유지)
+    button_primary = {
+      visible = "[Not(Or3(Not(GetVariableSystem.Exists('ckto_phase')), GetVariableSystem.HasValue('ckto_phase', 'done'), GetVariableSystem.HasValue('ckto_phase', 'no_match')))]"
+      layoutpolicy_horizontal = expanding
+      size = { 0 36 }
+      down = yes
+      alwaystransparent = yes
+
+      flowcontainer = {
+        parentanchor = center
+        direction = horizontal
+        spacing = 6
+        alwaystransparent = yes
+
+        icon_flat_standard_gold = {
+          size = { 22 22 }
+          parentanchor = vcenter
+          texture = "gfx/interface/colors/black.dds"
+          alwaystransparent = yes
+
+          modify_texture = {
+            name = "sui_ckto_spin"
+            blend_mode = alphaMultiply
+            texture = "gfx/interface/icons/flat_icons/army_automation.dds"
+            rotate_uv = 0
+          }
+
+          state = {
+            name = sui_spin_a
+            next = sui_spin_b
+            trigger_on_create = yes
+            duration = 2.0
+
+            modify_texture = {
+              name = "sui_ckto_spin"
+              rotate_uv = -360
+            }
+          }
+
+          state = {
+            name = sui_spin_b
+            next = sui_spin_a
+            duration = 0
+
+            modify_texture = {
+              name = "sui_ckto_spin"
+              rotate_uv = 0
+            }
+          }
+        }
+
+        text_single = {
+          parentanchor = vcenter
+          text = "ckto_working"
+          align = nobaseline
+          alwaystransparent = yes
+        }
+      }
+    }
+
+    # 우측 설정 토글 버튼 (바닐라 자동 부대 설정 깃펜+톱니 아이콘)
+    button_standard = {
+      size = { 36 36 }
+      down = "[GetVariableSystem.Exists('sui_ckto_opts_open')]"
+      onclick = "[GetVariableSystem.Toggle('sui_ckto_opts_open')]"
+      tooltip = "SUI_CKTO_OPTS_TT"
+
+      button_edit_automation = {
+        parentanchor = center
+        alwaystransparent = yes
+        size = { 26 26 }
+      }
+    }
   }
+
+  # 비활성화 시 원인별 안내 라벨 (기본 무역품과 동일한 브러시 라벨 + 붉은 색조 + 펄스 애니메이션)
+  text_label_center = {
+    visible = "[Not( TradeRoutePlanner.HasStartMarket )]"
+    layoutpolicy_horizontal = expanding
+    text = "SUI_CKTO_HINT_NO_MARKET"
+    using = Font_Size_Small
+    margin_top = 6
+    margin_bottom = 2
+
+    background = {
+      using = Background_Label
+      color = { 0.72 0.14 0.14 0.85 }
+      margin = { 16 4 }
+    }
+
+    state = {
+      name = sui_hint_pulse_down
+      next = sui_hint_pulse_up
+      trigger_on_create = yes
+      alpha = 0.55
+      duration = 0.9
+      using = Animation_Curve_Default
+    }
+    state = {
+      name = sui_hint_pulse_up
+      next = sui_hint_pulse_down
+      alpha = 1.0
+      duration = 0.9
+      using = Animation_Curve_Default
+    }
+  }
+  text_label_center = {
+    visible = "[And( TradeRoutePlanner.HasStartMarket, And( GetVariableSystem.Exists('ckto_locked'), Not( TradeRoutePlanner.HasSelectedTradeGoodType ) ) )]"
+    layoutpolicy_horizontal = expanding
+    text = "SUI_CKTO_HINT_NO_GOOD"
+    using = Font_Size_Small
+    margin_top = 6
+    margin_bottom = 2
+
+    background = {
+      using = Background_Label
+      color = { 0.72 0.14 0.14 0.85 }
+      margin = { 16 4 }
+    }
+
+    state = {
+      name = sui_hint_pulse_down2
+      next = sui_hint_pulse_up2
+      trigger_on_create = yes
+      alpha = 0.55
+      duration = 0.9
+      using = Animation_Curve_Default
+    }
+    state = {
+      name = sui_hint_pulse_up2
+      next = sui_hint_pulse_down2
+      alpha = 1.0
+      duration = 0.9
+      using = Animation_Curve_Default
+    }
+  }
+  # [SUI] END
   text_single = { visible = "[GetVariableSystem.HasValue('ckto_phase', 'no_match')]" text = "ckto_no_match" using = Font_Size_Small }
   # [SUI] START - 하단 중복 수익률 텍스트 숨김
   text_single = { visible = no text = "ckto_result" using = Font_Size_Small }

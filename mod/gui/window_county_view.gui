@@ -1795,6 +1795,8 @@ window = {
 													size = { 62 62 }
 												}
 											}
+											# [SUI] Trade Post building construction uses a separate queue not exposed to Holding.GetConstructionProgress
+											blockoverride "building_construct_progressbar" {}
 										}
 
 										widget_district_item = {
@@ -3438,13 +3440,15 @@ types CountyViewTypes {
 			position = { 0 -5 }
 		}
 
-		progressbar_standard = {
-			visible = "[And( Not( GUIDistrictItem.IsConstructing ), GUIDistrictItem.IsConstructingBuilding )]"
-			parentanchor = bottom|hcenter
-			alwaystransparent = yes
-			size = { 100% 10 }
-			value = "[Holding.GetConstructionProgress]"
-			direction = horizontal
+		block "building_construct_progressbar" {
+			progressbar_standard = {
+				visible = "[And( Not( GUIDistrictItem.IsConstructing ), GUIDistrictItem.IsConstructingBuilding )]"
+				parentanchor = bottom|hcenter
+				alwaystransparent = yes
+				size = { 100% 10 }
+				value = "[Holding.GetConstructionProgress]"
+				direction = horizontal
+			}
 		}
 
 		progressbar_standard = {
@@ -4773,18 +4777,11 @@ types CountyViewTypes {
 			text_multi = {
 				layoutpolicy_horizontal = expanding
 				autoresize = yes
+				min_width = 280
 				max_width = 280
-				text = "[GUIBuildingNeedItem.GetEffectBreakdown]"
+				text = "[GUIBuildingNeedItem.GetPerLevelModifierDescription( Character.Self )]"
 				using = DefaultTooltipText
 			}
-		}
-
-		text_single = {
-			visible = "[GreaterThan_int32( GUIBuildingNeedItem.GetNumActiveRepeatingSegments, '(int32)0' )]"
-			raw_text = "#P x[GUIBuildingNeedItem.GetNumActiveRepeatingSegments]#!"
-			fontsize = 14
-			align = nobaseline
-			margin_left = 4
 		}
 	}
 	# [SUI] END
